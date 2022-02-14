@@ -56,17 +56,26 @@ def make_batch(episodes, args):
         moments_ = list(itertools.chain.from_iterable([pickle.loads(bz2.decompress(ms)) for ms in ep['moment']]))
         moments = moments_[ep['start'] - ep['base']:ep['end'] - ep['base']]
         players = list(moments[0]['observation'].keys())
-
+        if not args['turn_based_training']:  # solo training
+            players = [random.choice(players)]
+        
         obs_zeros = map_r(moments[0]['observation'][moments[0]['turn'][0]], lambda o: np.zeros_like(o))  # template for padding
         amask_zeros = np.zeros_like(moments[0]['action_mask'][moments[0]['turn'][0]])  # template for padding
 
         # moments は moments[ステップ][属性][プレイヤー ID] みたいになっていて、ターン制の場合はプレイヤー ID の部分が冗長なので、外す
         # 各変数は hoge[ステップ][プレイヤー][行動] の形式になる
-        obs = [[m['observation'][m['turn'][0]]] for m in moments]  # m: moments の 1 ステップ
-        prob = np.array([[[m['selected_prob'][m['turn'][0]]]] for m in moments])
-        act = np.array([[m['action'][m['turn'][0]]] for m in moments], dtype=np.int64)[..., np.newaxis]  # [T, P, 1]  # newaxis を入れるのは tmask に合わせるため？
-        amask = np.array([[m['action_mask'][m['turn'][0]]] for m in moments])
-        
+        if args['turn_based_training'] and not args['observation']:
+            obs = [[m['observation'][m['turn'][0]]] for m in moments]  # m: moments の 1 ステップ
+            prob = np.array([[[m['selected_prob'][m['turn'][0]]]] for m in moments])
+            act = np.array([[m['action'][m['turn'][0]]] for m in moments], dtype=np.int64)[..., np.newaxis]  # [T, P, 1]  # newaxis を入れるのは tmask に合わせるため？
+            amask = np.array([[m['action_mask'][m['turn'][0]]] for m in moments])
+        else:
+            obs = [[replace_none(m['observation'][player], obs_zeros) for player in players] for m in moments]
+            prob = np.array([[[replace_none(m['selected_prob'][player], 1.0)] for player in players] for m in moments])
+            act = np.array([[replace_none(m['action'][player], 0) for player in players] for m in moments], dtype=np.int64)[..., np.newaxis]
+            amask = np.array([[replace_none(m['action_mask'][player], amask_zeros + 1e32) for player in players] for m in moments])
+
+
         # reshape observation
         # rotate が回転させるものはあくまで tuple, list, dict で、np.ndarray は回転させないことに注意
         obs = rotate(rotate(obs))  # (T, P, ..., ...) -> (P, ..., T, ...) -> (..., T, P, ...)
@@ -89,7 +98,7 @@ def make_batch(episodes, args):
         if len(tmask) < batch_steps:
             pad_len_b = - (ep['train_start'] - ep['start'])
             pad_len_a = batch_steps - len(tmask) - pad_len_b
-            # np.pad はやたら重い + multi agent に対応
+            # np.pad はやたら重い
             def pad(array, value):
                 first_dim = array.shape[0]
                 result_array = np.full((pad_len_b + first_dim + pad_len_a,) + array.shape[1:], value, dtype=array.dtype)
@@ -147,8 +156,6 @@ def forward_prediction(model, hidden, batch, args):
 
     for k, o in outputs.items():
         if k == 'policy':
-            # TODO: ここは確実に変えないといけない
-
             o = o.mul(batch['turn_mask'])  # o: [B, T, P or 1, n_actions], turn_mask: [B, T, P or 1, 1]
             if o.size(2) > 1 and batch_shape[2] == 1:  # turn-alternating batch  # そうなるか？？？
                 o = o.sum(2, keepdim=True)  # gather turn player's policies
@@ -175,11 +182,10 @@ def compose_losses(outputs, log_selected_policies, total_advantages, targets, ba
     turn_advantages = total_advantages.mul(tmasks).sum(2, keepdim=True)
 
     losses['p'] = (-log_selected_policies * turn_advantages).sum()
-    # value ... compute_target 内で自分の将来の value  (最後のターンは value の代わりに outcome を使って計算)
-    # rewards は考慮されない
+    # value で rewards は考慮されない
     if 'value' in outputs:
         losses['v'] = ((outputs['value'] - targets['value']) ** 2).mul(omasks).sum() / 2
-    # return ... 将来の reward の合計みたいなやつ
+    # return ... 将来の reward の合計みたいなやつ、outcome は考慮されない
     if 'return' in outputs:
         losses['r'] = F.smooth_l1_loss(outputs['return'], targets['return'], reduction='none').mul(omasks).sum()
 
@@ -199,7 +205,6 @@ def compute_loss(batch, model, hidden, args):
     emasks = batch['episode_mask']
     clip_rho_threshold, clip_c_threshold = 1.0, 1.0
 
-    # TODO: ここ直す
     log_selected_b_policies = torch.log(torch.clamp(batch['selected_prob'], 1e-16, 1)) * emasks
 
     log_selected_t_policies = F.log_softmax(outputs['policy'], dim=-1).gather(-1, actions) * emasks
@@ -219,8 +224,11 @@ def compute_loss(batch, model, hidden, args):
         outputs_nograd['value'] = values_nograd * emasks + batch['outcome'] * (1 - emasks)
 
     # targets と advantages を計算 / compute targets and advantage
+    # compute_target ... 将来に渡る values と rewards を gamma と lambda で減衰させながら計算 (最後のターンは returns)
     targets = {}
     advantages = {}
+    # これは最後あたりは outcome の予測、途中までは将来の自分の予測 value の予測になる
+    # outcome が 0 で value の予測値が無ければ policy の計算に影響しない？
     targets['value'], advantages['value'] = compute_target(
         args['value_target'],         # algorithm
         outputs_nograd.get('value'),  # values
@@ -231,6 +239,9 @@ def compute_loss(batch, model, hidden, args):
         clipped_rhos,                 # rhos
         cs,                           # cs
     )
+    # これは最後あたりは batch["return"] の予測、途中までは rewards と将来の自分の予測 return の予測になる
+    # batch["return"] は gamma で減衰する将来の rewards、outputs["return"] はそのターンの自分の出力なので注意
+    # env に reward が無くてモデルの出力にも return が無ければ 0 になるはずで、policy の計算に影響しなくなる
     targets['return'], advantages['return'] = compute_target(
         args['value_target'],          # algorithm
         outputs_nograd.get('return'),  # values   # ここ違う
@@ -243,6 +254,7 @@ def compute_loss(batch, model, hidden, args):
     )
 
     # policy advantage を計算 / compute policy advantage
+    # advantages['value'] + advantages['return']
     total_advantages = clipped_rhos * sum(advantages.values())
 
     return compose_losses(outputs, log_selected_t_policies, total_advantages, targets, batch, args)

@@ -3,9 +3,10 @@
 
 # implementation of Tic-Tac-Toe
 
+import sys
 import copy
 import random
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, STDOUT
 
 import numpy as np
 import torch
@@ -60,10 +61,22 @@ class Environment(BaseEnvironment):
     def __init__(self, args=None):
         super().__init__()
         self.reset()
+    
+    def _read(self):
+        inp = self.p_game.stdout.readline().decode().strip().split()
+        try:
+            return list(map(int, inp))
+        except Exception as e:
+            print(["エラー！！"], *inp, file=sys.stderr)
+            raise e 
 
     def reset(self, args=None):
-        self.p_game = Popen("")  # TODO
-
+        self.p_game = Popen("", stdin=PIPE, stdout=PIPE, stderr=STDOUT)  # TODO
+        
+        self.n_pets = self._read()[0]
+        py, px, pt
+        self.n_people = 
+        y, x
 
 
         # self.board = np.zeros((3, 3))  # (x, y)
@@ -87,27 +100,32 @@ class Environment(BaseEnvironment):
     #     s += 'record = ' + self.record_string()
     #     return s
 
-    def play(self, action, _=None):
-        # action: "udlrUDLR." 通行不能にする、移動する、何もしない
-        self.p_game.write()
+    # def play(self, action, _=None):
+    #     # action: "udlrUDLR." 通行不能にする、移動する、何もしない
+    #     self.p_game.write()
 
 
-        # state transition function
-        # action is integer (0 ~ 8)
-        x, y = action // 3, action % 3
-        self.board[x, y] = self.color
+    #     # state transition function
+    #     # action is integer (0 ~ 8)
+    #     x, y = action // 3, action % 3
+    #     self.board[x, y] = self.color
 
-        # check winning condition
-        win = self.board[x, :].sum() == 3 * self.color \
-            or self.board[:, y].sum() == 3 * self.color \
-            or (x == y and np.diag(self.board, k=0).sum() == 3 * self.color) \
-            or (x == 2 - y and np.diag(self.board[::-1, :], k=0).sum() == 3 * self.color)
+    #     # check winning condition
+    #     win = self.board[x, :].sum() == 3 * self.color \
+    #         or self.board[:, y].sum() == 3 * self.color \
+    #         or (x == y and np.diag(self.board, k=0).sum() == 3 * self.color) \
+    #         or (x == 2 - y and np.diag(self.board[::-1, :], k=0).sum() == 3 * self.color)
 
-        if win:
-            self.win_color = self.color
+    #     if win:
+    #         self.win_color = self.color
 
-        self.color = -self.color
-        self.record.append(action)
+    #     self.color = -self.color
+    #     self.record.append(action)
+
+    def step(self, actions):
+        for player_id, action in sorted(actions.items()):
+            
+
 
     def diff_info(self, _):
         if len(self.record) == 0:
