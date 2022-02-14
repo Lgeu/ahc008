@@ -94,9 +94,9 @@ def make_batch(episodes, args):
         progress = np.arange(ep['start'], ep['end'], dtype=np.float32)[..., np.newaxis] / ep['total']
 
         # pad each array if step length is short
-        batch_steps = args['burn_in_steps'] + args['forward_steps']
+        batch_steps = args['forward_steps']
         if len(tmask) < batch_steps:
-            pad_len_b = args['burn_in_steps'] - (ep['train_start'] - ep['start'])
+            pad_len_b = - (ep['train_start'] - ep['start'])
             pad_len_a = batch_steps - len(tmask) - pad_len_b
             # np.pad はやたら重い + multi agent に対応
             def pad(array, value):
@@ -106,7 +106,7 @@ def make_batch(episodes, args):
                 return result_array
             obs = map_r(obs, lambda o: pad(o, 0))
             prob = pad(prob, 1)
-            v = np.concatenate([pad(v, 0), np.tile(oc, [pad_len_a, 1, 1])])
+            v = np.concatenate([np.pad(v, [(pad_len_b, 0), (0, 0), (0, 0)], 'constant', constant_values=0), np.tile(oc, [pad_len_a, 1, 1])])
             act = pad(act, 0)
             rew = pad(rew, 0)
             ret = pad(ret, 0)
@@ -149,39 +149,10 @@ def forward_prediction(model, hidden, batch, args):
     observations = batch['observation']  # (..., B, T, P or 1, ...)
     batch_shape = batch['action'].size()[:3]  # (B, T, P or 1)
 
-    if hidden is None:
-        # feed-forward neural network
-        obs = map_r(observations, lambda o: o.flatten(0, 2))  # (..., B * T * P or 1, ...)
-        outputs = model(obs, None)  # type:dict
-        outputs = map_r(outputs, lambda o: o.unflatten(0, batch_shape))  # (..., B, T, P or 1, ...)
-    else:
-        # sequential computation with RNN
-        outputs = {}
-        for t in range(batch_shape[1]):
-            obs = map_r(observations, lambda o: o[:, t].flatten(0, 1))  # (..., B * P or 1, ...)
-            omask_ = batch['observation_mask'][:, t]
-            omask = map_r(hidden, lambda h: omask_.view(*h.size()[:2], *([1] * (h.dim() - 2))))
-            hidden_ = bimap_r(hidden, omask, lambda h, m: h * m)  # (..., B, P, ...)
-            if args['turn_based_training'] and not args['observation']:
-                hidden_ = map_r(hidden_, lambda h: h.sum(1))  # (..., B * 1, ...)
-            else:
-                hidden_ = map_r(hidden_, lambda h: h.flatten(0, 1))  # (..., B * P, ...)
-            if t < args['burn_in_steps']:
-                model.eval()
-                with torch.no_grad():
-                    outputs_ = model(obs, hidden_)
-            else:
-                if not model.training:
-                    model.train()
-                outputs_ = model(obs, hidden_)
-            outputs_ = map_r(outputs_, lambda o: o.unflatten(0, (batch_shape[0], batch_shape[2])))  # (..., B, P or 1, ...)
-            for k, o in outputs_.items():
-                if k == 'hidden':
-                    next_hidden = o
-                else:
-                    outputs[k] = outputs.get(k, []) + [o]
-            hidden = trimap_r(hidden, next_hidden, omask, lambda h, nh, m: h * (1 - m) + nh * m)
-        outputs = {k: torch.stack(o, dim=1) for k, o in outputs.items() if o[0] is not None}
+    # feed-forward neural network
+    obs = map_r(observations, lambda o: o.flatten(0, 2))  # (..., B * T * P or 1, ...)
+    outputs = model(obs, None)  # type:dict
+    outputs = map_r(outputs, lambda o: o.unflatten(0, batch_shape))  # (..., B, T, P or 1, ...)
 
     for k, o in outputs.items():
         if k == 'policy':
@@ -230,10 +201,6 @@ def compose_losses(outputs, log_selected_policies, total_advantages, targets, ba
 
 def compute_loss(batch, model, hidden, args):
     outputs = forward_prediction(model, hidden, batch, args)
-    if args['burn_in_steps'] > 0:
-        batch = map_r(batch, lambda v: v[:, args['burn_in_steps']:] if v.size(1) > 1 else v)
-        outputs = map_r(outputs, lambda v: v[:, args['burn_in_steps']:])
-
     actions = batch['action']
     emasks = batch['episode_mask']
     clip_rho_threshold, clip_c_threshold = 1.0, 1.0
@@ -309,7 +276,7 @@ class Batcher:
         ep = self.episodes[ep_idx]
         turn_candidates = 1 + max(0, ep['steps'] - self.args['forward_steps'])  # change start turn by sequence length
         train_st = random.randrange(turn_candidates)
-        st = max(0, train_st - self.args['burn_in_steps'])
+        st = train_st
         ed = min(train_st + self.args['forward_steps'], ep['steps'])
         st_block = st // self.args['compress_steps']
         ed_block = (ed - 1) // self.args['compress_steps'] + 1
