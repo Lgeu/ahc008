@@ -68,7 +68,7 @@ def make_batch(episodes, args):
         if args['turn_based_training'] and not args['observation']:
             obs = [[m['observation'][m['turn'][0]]] for m in moments]  # m: moments の 1 ステップ
             prob = np.array([[[m['selected_prob'][m['turn'][0]]]] for m in moments])
-            act = np.array([[m['action'][m['turn'][0]]] for m in moments], dtype=np.int64)[..., np.newaxis]  # newaxis を入れるのは amask と prob に合わせるため？
+            act = np.array([[m['action'][m['turn'][0]]] for m in moments], dtype=np.int64)[..., np.newaxis]  # [T, P, 1]  # newaxis を入れるのは tmask に合わせるため？
             amask = np.array([[m['action_mask'][m['turn'][0]]] for m in moments])
         else:
             obs = [[replace_none(m['observation'][player], obs_zeros) for player in players] for m in moments]
@@ -77,6 +77,7 @@ def make_batch(episodes, args):
             amask = np.array([[replace_none(m['action_mask'][player], amask_zeros + 1e32) for player in players] for m in moments])
 
         # reshape observation
+        # rotate が回転させるものはあくまで tuple, list, dict で、np.ndarray は回転させないことに注意
         obs = rotate(rotate(obs))  # (T, P, ..., ...) -> (P, ..., T, ...) -> (..., T, P, ...)
         obs = bimap_r(obs_zeros, obs, lambda _, o: np.array(o))
 
@@ -87,7 +88,7 @@ def make_batch(episodes, args):
         oc = np.array([ep['outcome'][player] for player in players], dtype=np.float32).reshape(1, len(players), -1)
 
         emask = np.ones((len(moments), 1, 1), dtype=np.float32)  # episode mask
-        tmask = np.array([[[m['selected_prob'][player] is not None] for player in players] for m in moments], dtype=np.float32)
+        tmask = np.array([[[m['selected_prob'][player] is not None] for player in players] for m in moments], dtype=np.float32)  # [T, P, 1]
         omask = np.array([[[m['observation'][player] is not None] for player in players] for m in moments], dtype=np.float32)
 
         progress = np.arange(ep['start'], ep['end'], dtype=np.float32)[..., np.newaxis] / ep['total']
@@ -97,17 +98,23 @@ def make_batch(episodes, args):
         if len(tmask) < batch_steps:
             pad_len_b = args['burn_in_steps'] - (ep['train_start'] - ep['start'])
             pad_len_a = batch_steps - len(tmask) - pad_len_b
-            obs = map_r(obs, lambda o: np.pad(o, [(pad_len_b, pad_len_a)] + [(0, 0)] * (len(o.shape) - 1), 'constant', constant_values=0))
-            prob = np.pad(prob, [(pad_len_b, pad_len_a), (0, 0), (0, 0)], 'constant', constant_values=1)
-            v = np.concatenate([np.pad(v, [(pad_len_b, 0), (0, 0), (0, 0)], 'constant', constant_values=0), np.tile(oc, [pad_len_a, 1, 1])])
-            act = np.pad(act, [(pad_len_b, pad_len_a), (0, 0), (0, 0)], 'constant', constant_values=0)
-            rew = np.pad(rew, [(pad_len_b, pad_len_a), (0, 0), (0, 0)], 'constant', constant_values=0)
-            ret = np.pad(ret, [(pad_len_b, pad_len_a), (0, 0), (0, 0)], 'constant', constant_values=0)
-            emask = np.pad(emask, [(pad_len_b, pad_len_a), (0, 0), (0, 0)], 'constant', constant_values=0)
-            tmask = np.pad(tmask, [(pad_len_b, pad_len_a), (0, 0), (0, 0)], 'constant', constant_values=0)
-            omask = np.pad(omask, [(pad_len_b, pad_len_a), (0, 0), (0, 0)], 'constant', constant_values=0)
-            amask = np.pad(amask, [(pad_len_b, pad_len_a), (0, 0), (0, 0)], 'constant', constant_values=1e32)
-            progress = np.pad(progress, [(pad_len_b, pad_len_a), (0, 0)], 'constant', constant_values=1)
+            # np.pad はやたら重い + multi agent に対応
+            def pad(array, value):
+                first_dim = array.shape[0]
+                result_array = np.full((pad_len_b + first_dim + pad_len_a,) + array.shape[1:], value, dtype=array.dtype)
+                result_array[pad_len_b:pad_len_b + first_dim] = array
+                return result_array
+            obs = map_r(obs, lambda o: pad(o, 0))
+            prob = pad(prob, 1)
+            v = np.concatenate([pad(v, 0), np.tile(oc, [pad_len_a, 1, 1])])
+            act = pad(act, 0)
+            rew = pad(rew, 0)
+            ret = pad(ret, 0)
+            emask = pad(emask, 0)
+            tmask = pad(tmask, 0)
+            omask = pad(omask, 0)
+            amask = pad(amask, 1e32)
+            progress = pad(progress, 1)
 
         obss.append(obs)
         datum.append((prob, v, act, oc, rew, ret, emask, tmask, omask, amask, progress))
@@ -145,7 +152,7 @@ def forward_prediction(model, hidden, batch, args):
     if hidden is None:
         # feed-forward neural network
         obs = map_r(observations, lambda o: o.flatten(0, 2))  # (..., B * T * P or 1, ...)
-        outputs = model(obs, None)
+        outputs = model(obs, None)  # type:dict
         outputs = map_r(outputs, lambda o: o.unflatten(0, batch_shape))  # (..., B, T, P or 1, ...)
     else:
         # sequential computation with RNN
@@ -178,8 +185,10 @@ def forward_prediction(model, hidden, batch, args):
 
     for k, o in outputs.items():
         if k == 'policy':
-            o = o.mul(batch['turn_mask'])
-            if o.size(2) > 1 and batch_shape[2] == 1:  # turn-alternating batch
+            # TODO: ここは確実に変えないといけない
+
+            o = o.mul(batch['turn_mask'])  # o: [B, T, P or 1, n_actions], turn_mask: [B, T, P or 1, 1]
+            if o.size(2) > 1 and batch_shape[2] == 1:  # turn-alternating batch  # そうなるか？？？
                 o = o.sum(2, keepdim=True)  # gather turn player's policies
             outputs[k] = o - batch['action_mask']
         else:
@@ -229,7 +238,9 @@ def compute_loss(batch, model, hidden, args):
     emasks = batch['episode_mask']
     clip_rho_threshold, clip_c_threshold = 1.0, 1.0
 
+    # TODO: ここ直す
     log_selected_b_policies = torch.log(torch.clamp(batch['selected_prob'], 1e-16, 1)) * emasks
+
     log_selected_t_policies = F.log_softmax(outputs['policy'], dim=-1).gather(-1, actions) * emasks
 
     # 重要度サンプリングの閾値 / thresholds of importance sampling

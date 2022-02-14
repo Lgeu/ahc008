@@ -1,6 +1,7 @@
 
 env_args:
-    env: 'TicTacToe'
+    env: 'handyrl.envs.ahc008'
+    #env: 'TicTacToe'
     #env: 'Geister'
     #env: 'HungryGeese'
     #env: 'handyrl.envs.parallel_tictactoe'  # specify by path
