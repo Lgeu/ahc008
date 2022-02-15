@@ -1525,7 +1525,7 @@ auto pet_types = array<PetType, 20>();
 auto pet_positions = array<Vec2<int>, 20>();
 auto human_positions = array<Vec2<int>, 10>();
 
-auto pet_history = array<Directions, 300>();
+auto pet_history = array<array<Directions, 300>, 20>();
 auto current_turn = 0;
 // auto global_features = nn::Tensor < fl
 
@@ -1533,6 +1533,8 @@ auto human_moves = array<char, 10>();
 auto fence_board = Board<bool, 32, 32>();
 auto human_count_board = Board<i8, 32, 32>();
 auto pet_count_board = Board<i8, 32, 32>();
+
+auto pet_moves = array<string, 20>();
 
 } // namespace common
 
@@ -1555,7 +1557,8 @@ void Initialize() {
 }
 
 void UpdateHuman() {
-    //
+    // human_moves をセットした後に呼ぶ
+
     using common::fence_board;
     using common::human_count_board;
     using common::human_moves;
@@ -1569,7 +1572,7 @@ void UpdateHuman() {
         } else {
             for (const auto& d : DIRECTION_VECS) {
                 auto neighbor = p + d;
-                if (pet_count_board[p] != 0) {
+                if (pet_count_board[neighbor] != 0) {
                     return false;
                 }
             }
@@ -1597,13 +1600,13 @@ void UpdateHuman() {
             d = Directions::R;
             break;
         }
-        auto succeeded = set_fence(v + DIRECTION_VECS[(int)d]);
+        const auto succeeded = set_fence(v + DIRECTION_VECS[(int)d]);
         assert(succeeded);
     }
 
     // 移動処理をする
     rep(i, common::M) {
-        const auto& v = human_positions[i];
+        auto& v = human_positions[i];
         Directions d;
         switch (human_moves[i]) {
         // 移動
@@ -1620,24 +1623,129 @@ void UpdateHuman() {
             d = Directions::R;
             break;
         }
-        Vec2<int> u = v + DIRECTION_VECS[(int)d];
-        assert(!fence_board[u]);
-        human_positions[i] = u;
-        human_count_board[u]++;
         human_count_board[v]--;
+        v += DIRECTION_VECS[(int)d];
+        assert(!fence_board[v]);
+        human_positions[i] = v;
+        human_count_board[v]++;
     }
 }
 
 void UpdatePets() {
-    //
+    // pet_moves をセットした後に呼ぶ
+    using common::current_turn;
+    using common::fence_board;
+    using common::pet_count_board;
+    using common::pet_history;
+    using common::pet_moves;
+    using common::pet_positions;
+    rep(i, common::N) {
+        const auto& pet_move = pet_moves[i];
+        auto& v = pet_positions[i];
+        pet_count_board[v]--;
+        for (const auto& mv : pet_move) {
+            Directions d;
+            switch (mv) {
+            case 'U':
+                d = Directions::U;
+                break;
+            case 'D':
+                d = Directions::D;
+                break;
+            case 'L':
+                d = Directions::L;
+                break;
+            case 'R':
+                d = Directions::R;
+                break;
+            }
+            v += DIRECTION_VECS[(int)d];
+            assert(!fence_board[v]);
+        }
+        pet_count_board[v]++;
+        pet_history[i][current_turn] = ; // TODO
+    }
 }
 
+namespace features {
+//
+
+auto turn = 0;
+auto log_remaining_turns = 0.0;
+auto human_y_mean = 0.0;
+auto human_x_mean = 0.0;
+auto human_y_std = 0.0;
+auto human_x_std = 0.0;
+auto human_yx_corr = 0.0;
+auto pet_y_mean = 0.0;
+auto pet_x_mean = 0.0;
+auto pet_y_std = 0.0;
+auto pet_x_std = 0.0;
+auto pet_yx_corr = 0.0;
+
+constexpr auto N_GLOBAL_FEATURES = 10;
+constexpr auto N_LOCAL_FEATURES = 50;
+auto observation_global = nn::Tensor<float, N_GLOBAL_FEATURES>();
+auto observation_local = nn::Tensor<float, N_LOCAL_FEATURES, 32, 32>();
+} // namespace features
+
 void ExtractFeatures() {
+    // 特徴量抽出 (observation 作成)
+    namespace f = features;
+    auto& g = f::observation_global;
+    auto& l = f::observation_local;
+    auto idx_g = 0, idx_l = 0;
+
+    // --- global ---
+
+    // ターン数
+    f::turn = common::current_turn;
+    g[idx_g++] = f::turn * (1.0 / 300.0);
+
+    // log1p(残りターン数)
+    f::log_remaining_turns = log(300 - common::current_turn);
+    g[idx_g++] = f::log_remaining_turns / log(300.0);
+
+    // 人の位置
+    Vec2<int> sum_human_positions, sum_squared_human_positions;
+    auto sum_human_yx = 0;
+    rep(i, common::M) {
+        const auto& p = common::human_positions[i];
+        sum_human_positions += p;
+        sum_squared_human_positions.y += p.y * p.y;
+        sum_squared_human_positions.x += p.x * p.x;
+        sum_human_yx += p.y * p.x;
+    }
+    f::human_y_mean = (double)sum_human_positions.y / (double)common::M;
+    f::human_x_mean = (double)sum_human_positions.x / (double)common::M;
+    f::human_y_std = sqrt((double)sum_squared_human_positions.y / (double)common::M - f::human_y_mean * f::human_y_mean);
+    f::human_x_std = sqrt((double)sum_squared_human_positions.x / (double)common::M - f::human_x_mean * f::human_x_mean);
+    f::human_yx_corr = ((double)sum_human_yx / (double)common::M - f::human_y_mean * f::human_x_mean) / (f::human_y_std * f::human_x_std);
+    g[idx_g++] = (f::human_y_mean - 15.5) * (1.0 / 14.5);
+    g[idx_g++] = (f::human_x_mean - 15.5) * (1.0 / 14.5);
+    g[idx_g++] = f::human_y_std * (1.0 / 14.5);
+    g[idx_g++] = f::human_x_std * (1.0 / 14.5);
+    g[idx_g++] = f::human_yx_corr;
+}
+
+void PrintFeatures() {
     //
 }
 
 void Predict() {
-    //
+    // NN での予測と、予測値からの行動決定 (禁止操作の除外など)
+}
+
+void Solve() {
+    Initialize();
+    rep(_, 300) {
+        ExtractFeatures();
+        Predict();
+        UpdateHuman();
+        // TODO: ここで rust からペットの動きを受け取る
+        UpdatePets();
+        common::current_turn++;
+    }
 }
 
 int main() {
