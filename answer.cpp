@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <immintrin.h>
 #include <iostream>
+#include <iterator>
 #include <limits>
 #include <numeric>
 #include <ostream>
@@ -1671,6 +1672,8 @@ namespace features {
 //
 
 auto turn = 0;
+auto n_pet = 0;
+auto n_human = 0;
 auto log_remaining_turns = 0.0;
 auto human_y_mean = 0.0;
 auto human_x_mean = 0.0;
@@ -1682,6 +1685,15 @@ auto pet_x_mean = 0.0;
 auto pet_y_std = 0.0;
 auto pet_x_std = 0.0;
 auto pet_yx_corr = 0.0;
+auto n_fences = 0;
+auto n_fences_per_turn = 0.0;
+auto max_area = 0;
+auto n_remaining_pet_each_type = array<int, 5>();
+
+auto distances_from_each_human = array<Board<short, 32, 32>, 10>();
+auto distances_from_each_pet = array<Board<short, 32, 32>, 10>();
+auto area_each_human = array<int, 10>();
+auto area_each_pet = array<int, 20>();
 
 constexpr auto N_GLOBAL_FEATURES = 10;
 constexpr auto N_LOCAL_FEATURES = 50;
@@ -1701,6 +1713,12 @@ void ExtractFeatures() {
     // ターン数
     f::turn = common::current_turn;
     g[idx_g++] = f::turn * (1.0 / 300.0);
+
+    // 全ペットの数、人の数
+    f::n_pet = common::N;
+    f::n_human = common::M;
+    g[idx_g++] = (f::n_pet - 10) * (1.0 / 10.0);
+    g[idx_g++] = (f::n_human - 5) * (1.0 / 5.0);
 
     // log1p(残りターン数)
     f::log_remaining_turns = log(300 - common::current_turn);
@@ -1726,6 +1744,87 @@ void ExtractFeatures() {
     g[idx_g++] = f::human_y_std * (1.0 / 14.5);
     g[idx_g++] = f::human_x_std * (1.0 / 14.5);
     g[idx_g++] = f::human_yx_corr;
+
+    // ペットの位置
+    Vec2<int> sum_pet_positions, sum_squared_pet_positions;
+    auto sum_pet_yx = 0;
+    rep(i, common::M) {
+        const auto& p = common::pet_positions[i];
+        sum_pet_positions += p;
+        sum_squared_pet_positions.y += p.y * p.y;
+        sum_squared_pet_positions.x += p.x * p.x;
+        sum_pet_yx += p.y * p.x;
+    }
+    f::pet_y_mean = (double)sum_pet_positions.y / (double)common::M;
+    f::pet_x_mean = (double)sum_pet_positions.x / (double)common::M;
+    f::pet_y_std = sqrt((double)sum_squared_pet_positions.y / (double)common::M - f::pet_y_mean * f::pet_y_mean);
+    f::pet_x_std = sqrt((double)sum_squared_pet_positions.x / (double)common::M - f::pet_x_mean * f::pet_x_mean);
+    f::pet_yx_corr = ((double)sum_pet_yx / (double)common::M - f::pet_y_mean * f::pet_x_mean) / (f::pet_y_std * f::pet_x_std);
+    g[idx_g++] = (f::pet_y_mean - 15.5) * (1.0 / 14.5);
+    g[idx_g++] = (f::pet_x_mean - 15.5) * (1.0 / 14.5);
+    g[idx_g++] = f::pet_y_std * (1.0 / 14.5);
+    g[idx_g++] = f::pet_x_std * (1.0 / 14.5);
+    g[idx_g++] = f::pet_yx_corr;
+
+    // BFS
+    auto bfs = [](const auto& board, const auto& start, auto& distances) {
+        distances.Fill(999);
+        auto q = array<Vec2<int>, 900>();
+        auto ql = &q[0];
+        auto qr = ql;
+        *qr = start;
+        qr++;
+        distances[start] = 0;
+        do {
+            const auto& v = *ql;
+            ql++;
+            for (const auto& d : DIRECTION_VECS) {
+                const auto u = v + d;
+                if (!board[u] && distances[u] == 999) {
+                    distances[u] = distances[v] + 1;
+                    *qr = u;
+                    qr++;
+                }
+            }
+        } while (ql != qr);
+        return distance(&q[0], ql); // 面積を返す
+    };
+    rep(i, common::M) { f::area_each_human[i] = bfs(common::fence_board, common::human_positions[i], f::distances_from_each_human[i]); }
+    rep(i, common::N) { f::area_each_pet[i] = bfs(common::fence_board, common::pet_positions[i], f::distances_from_each_pet[i]); }
+
+    // 柵の数
+    f::n_fences = 0;
+    rep1(y, 30) rep1(x, 30) f::n_fences += common::fence_board[{y, x}];
+    g[idx_g++] = f::n_fences * (1.0 / 100.0);
+
+    // 柵の数 / 経過ターン
+    f::n_fences_per_turn = (double)f::n_fences / ((double)f::turn + 1e-14);
+    g[idx_g++] = min(f::n_fences_per_turn, 3.0);
+
+    // 最大面積
+    auto max_area_human = 0;
+    f::max_area = 0;
+    rep(i, common::M) {
+        if (chmax(f::max_area, f::area_each_human[i])) {
+            max_area_human = i;
+        }
+    }
+    g[idx_g++] = f::max_area * (1.0 / 900.0);
+
+    // 各ペットの残り数 (最大エリアの人と違うところに居たら捕まえたと考える)
+    fill(f::n_remaining_pet_each_type.begin(), f::n_remaining_pet_each_type.end(), 0);
+    rep(i, common::N) {
+        const auto& pet_position = common::pet_positions[i];
+        const auto& pet_type = common::pet_types[i];
+        if (f::distances_from_each_human[max_area_human][pet_position] != 999) {
+            f::n_remaining_pet_each_type[(int)pet_type - 1]++;
+        }
+    }
+    rep(pet_type, 5) { g[idx_g++] = f::n_remaining_pet_each_type[pet_type] * 0.25; }
+
+    // 最大エリアにいる人は何割？
+
+    // 関節点に対して、そこを封鎖したとき最大エリアは何マス縮むか、最大エリア以外に何人/何頭いるか
 }
 
 void PrintFeatures() {
