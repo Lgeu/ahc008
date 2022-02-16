@@ -1543,6 +1543,7 @@ auto pet_count_board = Board<i8, 32, 32>();
 auto pet_moves = array<string, 20>();
 
 auto elapsed_turn_after_dog_meets_human = array<int, 20>();
+auto dog_targeting_probability = Board<double, 20, 10>();
 
 } // namespace common
 
@@ -1573,6 +1574,7 @@ void Initialize() {
         fence_board[{0, i}] = true;
         fence_board[{31, i}] = true;
     }
+    dog_targeting_probability.Fill(1.0 / (double)M);
 }
 
 void UpdateHuman() {
@@ -1659,8 +1661,10 @@ void UpdatePets() {
     using common::fence_board;
     using common::pet_count_board;
     // using common::pet_history;
+    using common::dog_targeting_probability;
     using common::elapsed_turn_after_dog_meets_human;
     using common::human_count_board;
+    using common::human_positions;
     using common::last_pet_moves;
     using common::pet_moves;
     using common::pet_positions;
@@ -1671,35 +1675,94 @@ void UpdatePets() {
         pet_count_board[v]--;
         last_pet_moves[i] = {v, pet_move[0]};
         const auto is_dog = pet_types[i] == PetType::DOG;
-        if (is_dog) {
+        if (is_dog && pet_move.size() == 2) {
+            // TODO: 犬関連について、孤立した犬の値が特徴量に混入していないか確認
             elapsed_turn_after_dog_meets_human[i]++;
             if (human_count_board[v] != 0) {
                 elapsed_turn_after_dog_meets_human[i] = 1;
+                // 人間と接したことによる確率の更新
+                auto sum_proba = 0.0;
+                rep(idx_human, common::M) {
+                    if (v == human_positions[idx_human]) {
+                        dog_targeting_probability[{i, idx_human}] = 1e-20;
+                    }
+                    sum_proba += dog_targeting_probability[{i, idx_human}];
+                }
+                rep(idx_human, common::M) { dog_targeting_probability[{i, idx_human}] *= (1.0 / sum_proba); }
+            }
+            // 人間と切り離されたことによる確率の更新
+            {
+                auto sum_proba = 0.0;
+                rep(idx_human, common::M) {
+                    if (features::distances_from_each_human[idx_human][v] == 999) {
+                        dog_targeting_probability[{i, idx_human}] = 1e-20;
+                    }
+                    sum_proba += dog_targeting_probability[{i, idx_human}];
+                }
+                rep(idx_human, common::M) { dog_targeting_probability[{i, idx_human}] *= (1.0 / sum_proba); }
             }
         }
         rep(idx_mv, pet_move.size()) {
             const auto& mv = pet_move[i];
-            Directions d;
-            switch (mv) {
-            case 'U':
-                d = Directions::U;
-                break;
-            case 'D':
-                d = Directions::D;
-                break;
-            case 'L':
-                d = Directions::L;
-                break;
-            case 'R':
-                d = Directions::R;
-                break;
+            {
+
+                Directions d;
+                switch (mv) {
+                case 'U':
+                    d = Directions::U;
+                    break;
+                case 'D':
+                    d = Directions::D;
+                    break;
+                case 'L':
+                    d = Directions::L;
+                    break;
+                case 'R':
+                    d = Directions::R;
+                    break;
+                }
+                const auto u = v + DIRECTION_VECS[(int)d];
+                assert(!fence_board[u]);
+
+                // 1 回目の移動による確率の更新  // distances_from_each_human は先に計算しないといけない
+                if (is_dog && idx_mv == 0 && pet_move.size() == 2) {
+                    auto sum_proba = 0.0;
+                    rep(idx_human, common::M) {
+                        auto min_dist = 999;
+                        auto min_cnt = 1;
+                        for (const auto& dd : DIRECTION_VECS) {
+                            if (min_dist > features::distances_from_each_human[idx_human][v + dd]) {
+                                min_dist = features::distances_from_each_human[idx_human][v + dd];
+                                min_cnt = 1;
+                            } else if (min_dist == features::distances_from_each_human[idx_human][v + dd]) {
+                                min_cnt++;
+                            }
+                        }
+                        if (features::distances_from_each_human[idx_human][u] == min_dist) {
+                            dog_targeting_probability[{i, idx_human}] /= (double)min_cnt;
+                        } else {
+                            dog_targeting_probability[{i, idx_human}] = 1e-20;
+                        }
+                        sum_proba += dog_targeting_probability[{i, idx_human}];
+                    }
+                    rep(idx_human, common::M) { dog_targeting_probability[{i, idx_human}] *= (1.0 / sum_proba); }
+                }
+                v = u;
             }
-            v += DIRECTION_VECS[(int)d];
-            assert(!fence_board[v]);
-            if (is_dog) {
+            if (is_dog && pet_move.size() == 2) {
                 if (human_count_board[v] != 0) {
                     elapsed_turn_after_dog_meets_human[i] = 0;
+                    // 人間と接したことによる確率の更新
+                    auto sum_proba = 0.0;
+                    rep(idx_human, common::M) {
+                        if (v == human_positions[idx_human]) {
+                            dog_targeting_probability[{i, idx_human}] = 1e-20;
+                        }
+                        sum_proba += dog_targeting_probability[{i, idx_human}];
+                    }
+                    rep(idx_human, common::M) { dog_targeting_probability[{i, idx_human}] *= (1.0 / sum_proba); }
                 }
+                // TODO: 人からの最短距離を先に計算しないといけない
             }
         }
         pet_count_board[v]++;
@@ -1763,6 +1826,7 @@ auto articulation_board = Board<bool, 32, 32>();
 auto articulation_fence_board = Board<bool, 32, 32>();
 struct ArticulationPoint {
     Vec2<i8> position;
+    Vec2<i8> widest_dir;
     short area; // その関節点を封鎖することで失う面積、人、ペット (関節点を含めない)
     i8 n_human;
     i8 n_pets;
@@ -1819,13 +1883,13 @@ void Dfs(const Vec2<i8>& v, const Vec2<i8>& p) {
     }
     is_articulation |= p.y == -1 && n_children >= 2;
     if (is_articulation) {
-        if (neighboring_widest_2cc_area < features::max_area - loss_2cc_area - 1) {
-            // 親を含む 2-連結成分が最大
-            articulation_points[n_articulation_points++] = {v, loss_2cc_area, n_victim_human, n_capturable_pets};
+        if (p.y != -1 && neighboring_widest_2cc_area < features::max_area - loss_2cc_area - 1) {
+            // 親を含む 2-連結成分が最大  p.y != -1 の条件は要らないと思うけど念の為
+            articulation_points[n_articulation_points++] = {v, p - v, loss_2cc_area, n_victim_human, n_capturable_pets};
         } else {
             // 子が最大
             articulation_points[n_articulation_points++] = {
-                v, (short)(features::max_area - neighboring_widest_2cc_area - 1),
+                v, neighboring_widest_2cc - v, (short)(features::max_area - neighboring_widest_2cc_area - 1),
                 (i8)(features::n_surviving_human - n_human_in_subtree[neighboring_widest_2cc] - common::human_count_board[v]),
                 (i8)(features::sum_n_remaining_pet - n_pets_in_subtree[neighboring_widest_2cc] - common::pet_count_board[v])};
         }
@@ -2031,7 +2095,6 @@ void ExtractFeatures() {
         f::min_distance_from_human.Fill(999);
         f::min_distance_from_pet.Fill(999);
         f::min_distance_pet_type.Fill(PetType::COW);
-
         rep(i, common::N) {
             const auto& distance_board = f::distances_from_each_pet[i];
             rep(y, 32) rep(x, 32) {
@@ -2098,45 +2161,50 @@ void ExtractFeatures() {
         idx_l += 4;
 
         // 犬なら、最後に人と重なってからの経過ターン  1
+        // 犬なら、移動確率  4
+        l[idx_l].Fill(0);
         rep(i, common::N) {
-            if (common::pet_types[i] == PetType::DOG) {
+            if (common::pet_types[i] == PetType::DOG && common::pet_moves[i].size() == 2) {
                 const auto& pos = common::pet_positions[i];
                 l[idx_l][pos.y][pos.x] = common::elapsed_turn_after_dog_meets_human[i] * 0.04;
+                // 確率計算 あーだめだこれ　リセット判定2回目もある
+                common::dog_targeting_probability
             }
         }
         idx_l++;
 
+        rep(i, common::N) { if () }
+        common::dog_targeting_probability[][];
+
+        //
+
         // 2-連結成分内の面積、人の数、ペットの数  3 // これいらんくないか？
 
-        // 関節点に対して、そこを封鎖したとき最大エリアは何マス縮むか、最大エリア以外に何人/何頭いるか  3
+        // 関節点に対して、そこを封鎖したとき最大エリアは何マス縮むか、最大エリア以外に何人/何頭いるか、封鎖した後の最大エリアはどっちか  5
         // 3 つ以上に分かれる
         l[idx_l].Fill(0);
         l[idx_l + 1].Fill(0);
         l[idx_l + 2].Fill(0);
+        l[idx_l + 3].Fill(0);
+        l[idx_l + 4].Fill(0);
         rep(i, lowlink::n_articulation_points) {
             const auto& ap = lowlink::articulation_points[i];
             l[idx_l][ap.position.y][ap.position.x] = ap.area * 0.02;
             l[idx_l + 1][ap.position.y][ap.position.x] = ap.n_human * 0.2;
             l[idx_l + 2][ap.position.y][ap.position.x] = ap.n_pets * 0.1;
-            // const auto& v = lowlink::articulation_points[i];
-            // const auto& siz = lowlink::subtree_size[v];
-            // if (siz - 1 < f::max_area - siz) {
-            //     l[idx_l][v.y][v.x] = siz * 0.02;
-            //     l[idx_l + 1][v.y][v.x] = (lowlink::n_human_in_subtree[v] - common::human_count_board[v]) * 0.2;
-            //     l[idx_l + 2][v.y][v.x] = (lowlink::n_pets_in_subtree[v] - common::pet_count_board[v]) * 0.1;
-            // } else {
-            //     const auto& root = common::human_positions[max_area_human];
-            //     l[idx_l][v.y][v.x] = siz * 0.02;
-            //     l[idx_l + 1][v.y][v.x] = lowlink::n_human_in_subtree[v] - common::human_count_board[v];
-            //     l[idx_l + 2][v.y][v.x] = lowlink::n_pets_in_subtree[v] - common::pet_count_board[v];
-            // }
+            l[idx_l + 3][ap.position.y][ap.position.x] = ap.widest_dir.y;
+            l[idx_l + 4][ap.position.y][ap.position.x] = ap.widest_dir.x;
         }
+        idx_l += 5;
 
-        // 1 手で封鎖できる門をすべて封鎖した後の連結成分内の面積、人の数、ペットの数、封鎖した門の数  4
+        // 1 手で封鎖できる門をすべて封鎖した後の連結成分内の面積、人の数、ペットの数、封鎖した門の数  4  // これもいらない？
 
         // k 移動後のペット存在確率？
 
         // そこは最大エリアか  1
+        l[idx_l].Fill(0);
+        rep(y, 32) rep(x, 32) { l[idx_l][y][x] = f::distances_from_each_human[max_area_human][{y, x}] != 999; }
+        idx_l++;
     }
 }
 
