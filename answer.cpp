@@ -1549,8 +1549,10 @@ auto dog_targeting_probability = Board<double, 20, 10>();
 
 namespace features {
 
-constexpr auto N_GLOBAL_FEATURES = 10;
-constexpr auto N_LOCAL_FEATURES = 50;
+constexpr auto N_GLOBAL_FEATURES = 25;
+constexpr auto N_LOCAL_FEATURES = 29;
+alignas(64) auto distances_from_each_human = array<Board<short, 32, 32>, 10>();
+alignas(64) auto distances_from_each_pet = array<Board<short, 32, 32>, 10>();
 
 // 0 -> 人
 // 1 -> 柵
@@ -1575,6 +1577,7 @@ void Initialize() {
         fence_board[{31, i}] = true;
     }
     dog_targeting_probability.Fill(1.0 / (double)M);
+    rep(i, N) pet_moves[i] = "..";
 }
 
 void UpdateHuman() {
@@ -1805,8 +1808,6 @@ auto diff_odd_even_dog_cat = 0;
 // auto fence = Board<int, 32, 32>();
 auto pet_counts = array<Board<int, 32, 32>, 5>();
 
-alignas(64) auto distances_from_each_human = array<Board<short, 32, 32>, 10>();
-alignas(64) auto distances_from_each_pet = array<Board<short, 32, 32>, 10>();
 alignas(64) auto min_distance_from_human = Board<short, 32, 32>();
 alignas(64) auto min_distance_from_pet = Board<short, 32, 32>();
 alignas(64) auto min_distance_pet_type = Board<PetType, 32, 32>();
@@ -1918,6 +1919,34 @@ void Compute(const Vec2<i8>& start) {
 
 } // namespace lowlink
 
+void PreComputeFeatures() {
+    // BFS
+    namespace f = features;
+    auto bfs = [](const auto& board, const auto& start, auto& distances) {
+        distances.Fill(999);
+        auto q = array<Vec2<int>, 900>();
+        auto ql = &q[0];
+        auto qr = ql;
+        *qr = start;
+        qr++;
+        distances[start] = 0;
+        do {
+            const auto& v = *ql;
+            ql++;
+            for (const auto& d : DIRECTION_VECS) {
+                const auto u = v + d;
+                if (!board[u] && distances[u] == 999) {
+                    distances[u] = distances[v] + 1;
+                    *qr = u;
+                    qr++;
+                }
+            }
+        } while (ql != qr);
+        return distance(&q[0], ql); // 面積を返す
+    };
+    rep(i, common::M) { f::area_each_human[i] = bfs(common::fence_board, common::human_positions[i], f::distances_from_each_human[i]); }
+    rep(i, common::N) { f::area_each_pet[i] = bfs(common::fence_board, common::pet_positions[i], f::distances_from_each_pet[i]); }
+}
 void ExtractFeatures() {
     // 特徴量抽出 (observation 作成)
     namespace f = features;
@@ -1986,32 +2015,6 @@ void ExtractFeatures() {
         g[idx_g++] = f::pet_x_std * (1.0 / 14.5);
         g[idx_g++] = f::pet_yx_corr;
 
-        // BFS
-        auto bfs = [](const auto& board, const auto& start, auto& distances) {
-            distances.Fill(999);
-            auto q = array<Vec2<int>, 900>();
-            auto ql = &q[0];
-            auto qr = ql;
-            *qr = start;
-            qr++;
-            distances[start] = 0;
-            do {
-                const auto& v = *ql;
-                ql++;
-                for (const auto& d : DIRECTION_VECS) {
-                    const auto u = v + d;
-                    if (!board[u] && distances[u] == 999) {
-                        distances[u] = distances[v] + 1;
-                        *qr = u;
-                        qr++;
-                    }
-                }
-            } while (ql != qr);
-            return distance(&q[0], ql); // 面積を返す
-        };
-        rep(i, common::M) { f::area_each_human[i] = bfs(common::fence_board, common::human_positions[i], f::distances_from_each_human[i]); }
-        rep(i, common::N) { f::area_each_pet[i] = bfs(common::fence_board, common::pet_positions[i], f::distances_from_each_pet[i]); }
-
         // 柵の数
         f::n_fences = 0;
         rep1(y, 30) rep1(x, 30) f::n_fences += common::fence_board[{y, x}];
@@ -2068,6 +2071,8 @@ void ExtractFeatures() {
         // 2-連結成分の数
         lowlink::Compute(common::human_positions[max_area_human]);
         g[idx_g++] = lowlink::n_articulation_points * 0.01;
+
+        assert(idx_g == f::N_GLOBAL_FEATURES);
     }
 
     // --- local ---
@@ -2163,20 +2168,71 @@ void ExtractFeatures() {
         // 犬なら、最後に人と重なってからの経過ターン  1
         // 犬なら、移動確率  4
         l[idx_l].Fill(0);
+        l[idx_l + 1].Fill(0);
+        l[idx_l + 2].Fill(0);
+        l[idx_l + 3].Fill(0);
+        l[idx_l + 4].Fill(0);
         rep(i, common::N) {
             if (common::pet_types[i] == PetType::DOG && common::pet_moves[i].size() == 2) {
                 const auto& pos = common::pet_positions[i];
                 l[idx_l][pos.y][pos.x] = common::elapsed_turn_after_dog_meets_human[i] * 0.04;
-                // 確率計算 あーだめだこれ　リセット判定2回目もある
-                common::dog_targeting_probability
+                // 確率
+                rep(idx_human, common::M) {
+                    auto min_dist = 999;
+                    auto min_cnt = 1;
+                    for (const auto& d : DIRECTION_VECS) {
+                        if (min_dist > features::distances_from_each_human[idx_human][pos + d]) {
+                            min_dist = features::distances_from_each_human[idx_human][pos + d];
+                            min_cnt = 1;
+                        } else if (min_dist == features::distances_from_each_human[idx_human][pos + d]) {
+                            min_cnt++;
+                        }
+                    }
+                    rep(idx_d, 4) {
+                        const auto& d = DIRECTION_VECS[idx_d];
+                        if (min_dist == features::distances_from_each_human[idx_human][pos + d]) {
+                            l[idx_l + 1 + idx_d] += common::dog_targeting_probability[{i, idx_human}] / (double)min_cnt;
+                        }
+                    }
+                }
             }
         }
-        idx_l++;
+        idx_l += 5;
 
-        rep(i, common::N) { if () }
-        common::dog_targeting_probability[][];
-
-        //
+        // 人なら、犬から逃れる方角、最も狙われている確率が高い犬からの道のり  5
+        l[idx_l].Fill(0);
+        l[idx_l + 1].Fill(0);
+        l[idx_l + 2].Fill(0);
+        l[idx_l + 3].Fill(0);
+        l[idx_l + 4].Fill(0);
+        rep(idx_human, common::M) {
+            auto max_proba = 0.0;
+            auto max_proba_distance = 0;
+            const auto& human_pos = common::human_positions[idx_human];
+            rep(i, common::N) {
+                if (common::pet_types[i] == PetType::DOG && common::pet_moves[i].size() == 2) {
+                    auto best_dir = -1;
+                    auto max_dist = 0;
+                    const auto& v = common::pet_positions[i];
+                    rep(i, 4) {
+                        const auto u = v + DIRECTION_VECS[i];
+                        if (f::distances_from_each_pet[i][u] == 999)
+                            continue;
+                        if (chmax(max_dist, f::distances_from_each_pet[i][u])) {
+                            best_dir = i;
+                        }
+                    }
+                    if (best_dir != -1) { // この条件いる？
+                        l[idx_l + best_dir][human_pos.y][human_pos.x] += common::dog_targeting_probability[{i, idx_human}];
+                        if (chmax(max_proba, common::dog_targeting_probability[{i, idx_human}])) {
+                            max_proba_distance = f::distances_from_each_pet[i][v];
+                        }
+                    }
+                }
+            }
+            l[idx_l + 4][human_pos.y][human_pos.x] = min(max_proba_distance, 50) * 0.04;
+        }
+        idx_l += 5;
 
         // 2-連結成分内の面積、人の数、ペットの数  3 // これいらんくないか？
 
@@ -2205,31 +2261,53 @@ void ExtractFeatures() {
         l[idx_l].Fill(0);
         rep(y, 32) rep(x, 32) { l[idx_l][y][x] = f::distances_from_each_human[max_area_human][{y, x}] != 999; }
         idx_l++;
+
+        assert(idx_l == f::N_LOCAL_FEATURES);
     }
 }
 
 void PrintFeatures() {
-    //
+    // TODO
 }
 
 void Predict() {
     // NN での予測と、予測値からの行動決定 (禁止操作の除外など)
+    using common::human_moves;
+    using features::observation_global;
+    using features::observation_local;
+    // TODO
+
+    rep(i, common::M) { human_moves[i] = '.'; }
+}
+
+void Interact() {
+    // 毎ターンの入出力
+    using common::human_moves;
+    using common::pet_moves;
+
+    rep(i, common::M) { cout << human_moves[i]; }
+    cout << endl;
+
+    rep(i, common::N) { cin >> pet_moves[i]; }
 }
 
 void Solve() {
     Initialize();
+    PreComputeFeatures();
     rep(_, 300) {
         ExtractFeatures();
         Predict();
         UpdateHuman();
-        // TODO: ここで rust からペットの動きを受け取る
+        Interact();
+        PreComputeFeatures();
         UpdatePets();
         common::current_turn++;
     }
 }
 
 int main() {
-    //
+    // aaaaaaaa
+    Solve();
 }
 
 #ifdef __clang__
