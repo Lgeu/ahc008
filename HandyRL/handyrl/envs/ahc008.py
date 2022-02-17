@@ -115,6 +115,7 @@ class MBConvBlock(nn.Module):
             x = x + inputs  # skip connection
         return x
 
+
 class Model(nn.Module):
     def __init__(self):
         super().__init__()
@@ -219,13 +220,16 @@ class Environment(BaseEnvironment):
         self.p_game = None
         self.reset()
 
+    def __del__(self):
+        self.server_socket.close()
+
     def _send(self, data):
         sum_sent = 0
         while sum_sent < len(data):
             sent = self.sock.send(data[sum_sent:])
             if sent == 0:
                 raise RuntimeError("socket connection broken")
-            sum_sent = sum_sent + sent
+            sum_sent += sent
 
     def _recv(self, length):
         chunks = []
@@ -235,7 +239,7 @@ class Environment(BaseEnvironment):
             if chunk == b'':
                 raise RuntimeError("socket connection broken")
             chunks.append(chunk)
-            bytes_recd = bytes_recd + len(chunk)
+            bytes_recd += len(chunk)
         return b''.join(chunks)
 
     def reset(self, args=None):

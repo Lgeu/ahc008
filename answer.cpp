@@ -2318,11 +2318,12 @@ void Solve() {
     }
 }
 
+#ifndef SKIP_MAIN
 int main() {
-    // aaaaaaaa
     // std::this_thread::sleep_for(std::chrono::seconds(10));
     Solve();
 }
+#endif
 
 #ifdef __clang__
 #pragma clang attribute pop
