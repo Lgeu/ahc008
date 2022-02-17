@@ -10,6 +10,7 @@
 #include <limits>
 #include <numeric>
 #include <ostream>
+#include <thread>
 #include <type_traits>
 
 #ifdef _MSC_VER
@@ -1514,7 +1515,7 @@ template <typename T> struct Slice {
 
 // ===========================================================================================================
 
-enum struct Directions { U, D, L, R };
+enum struct Directions { U, D, L, R, NONE };
 constexpr auto DIRECTION_VECS = array<Vec2<int>, 4>{Vec2<int>{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
 enum struct PetType { NONE, COW, PIG, RABBIT, DOG, CAT };
 using i8 = signed char;
@@ -1550,7 +1551,7 @@ auto dog_targeting_probability = Board<double, 20, 10>();
 namespace features {
 
 constexpr auto N_GLOBAL_FEATURES = 25;
-constexpr auto N_LOCAL_FEATURES = 29;
+constexpr auto N_LOCAL_FEATURES = 30;
 alignas(64) auto distances_from_each_human = array<Board<short, 32, 32>, 10>();
 alignas(64) auto distances_from_each_pet = array<Board<short, 32, 32>, 10>();
 
@@ -1566,10 +1567,14 @@ void Initialize() {
     rep(i, N) {
         int pt;
         cin >> pet_positions[i].y >> pet_positions[i].x >> pt;
+        pet_count_board[pet_positions[i]]++;
         pet_types[i] = (PetType)pt;
     }
     cin >> M;
-    rep(i, M) { cin >> human_positions[i].y >> human_positions[i].x; }
+    rep(i, M) {
+        cin >> human_positions[i].y >> human_positions[i].x;
+        human_count_board[human_positions[i]]++;
+    }
     rep(i, 32) {
         fence_board[{i, 0}] = true;
         fence_board[{i, 31}] = true;
@@ -1609,7 +1614,7 @@ void UpdateHuman() {
     // 先に通行不能化処理をやる
     rep(i, common::M) {
         const auto& v = human_positions[i];
-        Directions d;
+        auto d = Directions::NONE;
         switch (human_moves[i]) {
         // 通行不能にする
         case 'u':
@@ -1625,16 +1630,18 @@ void UpdateHuman() {
             d = Directions::R;
             break;
         }
-        const auto u = v + DIRECTION_VECS[(int)d];
-        const auto succeeded = set_fence(u);
-        assert(succeeded);
-        observation_local[1][u.y][u.x] = 1.0f;
+        if (d != Directions::NONE) {
+            const auto u = v + DIRECTION_VECS[(int)d];
+            const auto succeeded = set_fence(u);
+            assert(succeeded);
+            observation_local[1][u.y][u.x] = 1.0f;
+        }
     }
 
     // 移動処理をする
     rep(i, common::M) {
         auto& v = human_positions[i];
-        Directions d;
+        auto d = Directions::NONE;
         switch (human_moves[i]) {
         // 移動
         case 'U':
@@ -1650,11 +1657,13 @@ void UpdateHuman() {
             d = Directions::R;
             break;
         }
-        human_count_board[v]--;
-        v += DIRECTION_VECS[(int)d];
-        assert(!fence_board[v]);
-        human_positions[i] = v;
-        human_count_board[v]++;
+        if (d != Directions::NONE) {
+            human_count_board[v]--;
+            v += DIRECTION_VECS[(int)d];
+            assert(!fence_board[v]);
+            human_positions[i] = v;
+            human_count_board[v]++;
+        }
     }
 }
 
@@ -1706,7 +1715,7 @@ void UpdatePets() {
             }
         }
         rep(idx_mv, pet_move.size()) {
-            const auto& mv = pet_move[i];
+            const auto& mv = pet_move[idx_mv];
             {
 
                 Directions d;
@@ -1843,8 +1852,8 @@ auto n_human_in_subtree = Board<i8, 32, 32>();
 struct Edge {
     Vec2<i8> from, to;
 };
-auto edges = array<Edge, 900>(); // DFS 木の辺
-auto n_edges = 0;
+// auto edges = array<Edge, 900>(); // DFS 木の辺
+// auto n_edges = 0;
 
 void Dfs(const Vec2<i8>& v, const Vec2<i8>& p) {
     order[v] = low[v] = ++current_order;
@@ -1874,7 +1883,7 @@ void Dfs(const Vec2<i8>& v, const Vec2<i8>& p) {
                 n_victim_human += n_human_in_subtree[u];
                 n_capturable_pets += n_pets_in_subtree[u];
             }
-            edges[n_edges++] = {v, u};
+            // edges[n_edges++] = {v, u};
             subtree_size[v] += subtree_size[u];
             n_human_in_subtree[v] += n_human_in_subtree[u];
             n_pets_in_subtree[v] += n_pets_in_subtree[u];
@@ -1899,6 +1908,7 @@ void Dfs(const Vec2<i8>& v, const Vec2<i8>& p) {
     }
     n_human_in_subtree[v] += common::human_count_board[v];
     n_pets_in_subtree[v] += common::pet_count_board[v];
+    // cout << "#" << (int)v.y << "," << (int)v.x << "=" << (int)n_pets_in_subtree[v] << endl;
 }
 
 void Compute(const Vec2<i8>& start) {
@@ -1912,6 +1922,9 @@ void Compute(const Vec2<i8>& start) {
     n_pets_in_subtree.Fill(0);
     n_human_in_subtree.Fill(0);
     Dfs(start, {-1, -1});
+    cout << "#" << subtree_size[start] << endl;
+    cout << "#" << features::sum_n_remaining_pet << endl;
+    cout << "#" << (int)n_pets_in_subtree[start] << endl;
     assert(subtree_size[start] == features::max_area);
     assert(n_pets_in_subtree[start] == features::sum_n_remaining_pet);
     assert(n_human_in_subtree[start] == features::n_surviving_human);
@@ -2307,6 +2320,7 @@ void Solve() {
 
 int main() {
     // aaaaaaaa
+    std::this_thread::sleep_for(std::chrono::seconds(10));
     Solve();
 }
 

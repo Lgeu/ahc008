@@ -2,3 +2,4 @@
 /tools/*.*
 /tools/*/*.*
 /tools/*/*/*.*
+/tools/target/*
