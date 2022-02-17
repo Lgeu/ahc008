@@ -1,11 +1,6 @@
-# Copyright (c) 2020 DeNA Co., Ltd.
-# Licensed under The MIT License [see LICENSE for details]
-
-# implementation of Tic-Tac-Toe
-
-import sys
-import copy
+import math
 import random
+import socket
 from subprocess import Popen, PIPE, STDOUT
 
 import numpy as np
@@ -16,165 +11,293 @@ import torch.nn.functional as F
 from ..environment import BaseEnvironment
 
 
-class TorusConv2d(nn.Module):
-    def __init__(self, input_dim, output_dim, kernel_size, bn):
-        super().__init__()
-        self.edge_size = (kernel_size[0] // 2, kernel_size[1] // 2)
-        self.conv = nn.Conv2d(input_dim, output_dim, kernel_size=kernel_size)
-        self.bn = nn.BatchNorm2d(output_dim) if bn else None
+class Conv2dStaticSamePadding(nn.Conv2d):
+    def __init__(self, in_channels, out_channels, kernel_size, stride=1, image_size=None, **kwargs):
+        super().__init__(in_channels, out_channels, kernel_size, stride, **kwargs)
+        self.stride = self.stride if len(self.stride) == 2 else [self.stride[0]] * 2
+        assert image_size is not None
+        ih, iw = (image_size, image_size) if isinstance(image_size, int) else image_size
+        kh, kw = self.weight.size()[-2:]
+        sh, sw = self.stride
+        oh, ow = math.ceil(ih / sh), math.ceil(iw / sw)
+        pad_h = max((oh - 1) * self.stride[0] + (kh - 1) * self.dilation[0] + 1 - ih, 0)
+        pad_w = max((ow - 1) * self.stride[1] + (kw - 1) * self.dilation[1] + 1 - iw, 0)
+        if pad_h > 0 or pad_w > 0:
+            self.static_padding = nn.ZeroPad2d((pad_w // 2, pad_w - pad_w // 2,
+                                                pad_h // 2, pad_h - pad_h // 2))
+        else:
+            self.static_padding = nn.Identity()
 
     def forward(self, x):
-        h = torch.cat([x[:,:,:,-self.edge_size[1]:], x, x[:,:,:,:self.edge_size[1]]], dim=3)
-        h = torch.cat([h[:,:,-self.edge_size[0]:], h, h[:,:,:self.edge_size[0]]], dim=2)
-        h = self.conv(h)
-        h = self.bn(h) if self.bn is not None else h
-        return h
+        x = self.static_padding(x)
+        x = F.conv2d(x, self.weight, self.bias, self.stride, self.padding, self.dilation, self.groups)
+        return x
 
 
-class GeeseNet(nn.Module):
+class SwishImplementation(torch.autograd.Function):
+    @staticmethod
+    def forward(ctx, i):
+        result = i * torch.sigmoid(i)
+        ctx.save_for_backward(i)
+        return result
+
+    @staticmethod
+    def backward(ctx, grad_output):
+        i = ctx.saved_tensors[0]
+        sigmoid_i = torch.sigmoid(i)
+        return grad_output * (sigmoid_i * (1 + i * (1 - sigmoid_i)))
+
+
+class MemoryEfficientSwish(nn.Module):
+    def forward(self, x):
+        return SwishImplementation.apply(x)
+
+
+class MBConvBlock(nn.Module):
+    def __init__(self, input_filters, output_filters, expand_ratio, kernel_size, stride, image_size):
+        super().__init__()
+        self.expand_ratio = expand_ratio
+        self.input_filters = input_filters
+        self.output_filters = output_filters
+        self.stride = stride
+
+        # Expansion phase (Inverted Bottleneck)
+        inp = input_filters  # number of input channels
+        oup = input_filters * expand_ratio  # number of output channels
+        if expand_ratio != 1:
+            self._expand_conv = nn.Conv2d(in_channels=inp, out_channels=oup, kernel_size=1, bias=False, padding="same")
+            self._bn0 = nn.BatchNorm2d(num_features=oup)
+            
+        # Depthwise convolution phase        
+        self._depthwise_conv = Conv2dStaticSamePadding(
+            in_channels=oup, out_channels=oup, groups=oup,  # groups makes it depthwise
+            kernel_size=kernel_size, stride=stride, bias=False, image_size=image_size)
+        self._bn1 = nn.BatchNorm2d(num_features=oup)
+        image_size //= stride
+
+        # Squeeze and Excitation layer, if desired
+        num_squeezed_channels = max(1, input_filters // 4)
+        self._se_reduce = nn.Conv2d(in_channels=oup, out_channels=num_squeezed_channels, kernel_size=1, padding="same")
+        self._se_expand = nn.Conv2d(in_channels=num_squeezed_channels, out_channels=oup, kernel_size=1, padding="same")
+
+        # Pointwise convolution phase
+        self._project_conv = nn.Conv2d(in_channels=oup, out_channels=output_filters, kernel_size=1, bias=False, padding="same")
+        self._bn2 = nn.BatchNorm2d(num_features=output_filters)
+        self._swish = MemoryEfficientSwish()
+
+
+    def forward(self, inputs):
+        # Expansion and Depthwise Convolution
+        x = inputs
+        if self.expand_ratio != 1:
+            x = self._expand_conv(inputs)
+            x = self._bn0(x)
+            x = self._swish(x)
+
+        x = self._depthwise_conv(x)
+        x = self._bn1(x)
+        x = self._swish(x)
+
+        # Squeeze and Excitation
+        x_squeezed = F.adaptive_avg_pool2d(x, 1)  # global average pooling
+        x_squeezed = self._se_reduce(x_squeezed)
+        x_squeezed = self._swish(x_squeezed)
+        x_squeezed = self._se_expand(x_squeezed)
+        x = torch.sigmoid(x_squeezed) * x
+
+        # Pointwise Convolution
+        x = self._project_conv(x)
+        x = self._bn2(x)
+
+        # Skip connection
+        input_filters, output_filters = self.input_filters, self.output_filters
+        if self.stride == 1 and input_filters == output_filters:
+            x = x + inputs  # skip connection
+        return x
+
+class Model(nn.Module):
     def __init__(self):
         super().__init__()
-        layers, filters = 12, 32
+        image_size = 32
+        global_feature_dims = 25
+        local_feature_dims = 30
+        out_dims = 9 + 1 + 1 + 1  # 方策 (人)、reward (ペット)、面積 (人)、 捕まる確率 (ペット)
 
-        self.conv0 = TorusConv2d(17, filters, (3, 3), True)
-        self.blocks = nn.ModuleList([TorusConv2d(filters, filters, (3, 3), True) for _ in range(layers)])
-        self.head_p = nn.Linear(filters, 4, bias=False)
-        self.head_v = nn.Linear(filters * 2, 1, bias=False)
+        dim1 = 32
 
-    def forward(self, x, _=None):
-        h = F.relu_(self.conv0(x))
-        for block in self.blocks:
-            h = F.relu_(h + block(h))
-        h_head = (h * x[:,:1]).view(h.size(0), h.size(1), -1).sum(-1)
-        h_avg = h.view(h.size(0), h.size(1), -1).mean(-1)
-        p = self.head_p(h_head)
-        v = torch.tanh(self.head_v(torch.cat([h_head, h_avg], 1)))
+        self.global_feature_linear_1 = nn.Linear(global_feature_dims, dim1)
+        self.global_feature_bn_1 = nn.BatchNorm1d(dim1)
+        self.global_feature_linear_2 = nn.Linear(dim1, dim1 * 10)
+        self.global_feature_bn_2 = nn.BatchNorm1d(dim1 * 10)
+        self.global_feature_mapping = torch.tensor([
+            [0, 1, 2, 3, 3, 2, 1, 0],
+            [1, 4, 5, 6, 6, 5, 4, 1],
+            [2, 5, 7, 8, 8, 7, 5, 2],
+            [3, 6, 8, 9, 9, 8, 6, 3],
+            [3, 6, 8, 9, 9, 8, 6, 3],
+            [2, 5, 7, 8, 8, 7, 5, 2],
+            [1, 4, 5, 6, 6, 5, 4, 1],
+            [0, 1, 2, 3, 3, 2, 1, 0],
+        ])
 
-        return {'policy': p, 'value': v}
+        self.pre_conv = nn.Conv2d(local_feature_dims, dim1, kernel_size=3, stride=1, padding="same", bias=False)
+        self.pre_bn = nn.BatchNorm2d(dim1)
+        self.swish = MemoryEfficientSwish()
+
+        self.encoder_blocks = nn.ModuleList()
+        self.encoder_blocks.append(MBConvBlock(kernel_size=3, stride=1, expand_ratio=5, input_filters=dim1, output_filters=dim1, image_size=image_size))
+        
+        self.encoder_blocks.append(MBConvBlock(kernel_size=3, stride=2, expand_ratio=5, input_filters=dim1, output_filters=dim1, image_size=image_size))
+        image_size //= 2  # 16
+        self.encoder_blocks.append(MBConvBlock(kernel_size=3, stride=1, expand_ratio=5, input_filters=dim1, output_filters=dim1, image_size=image_size))
+        
+        self.encoder_blocks.append(MBConvBlock(kernel_size=3, stride=2, expand_ratio=5, input_filters=dim1, output_filters=dim1, image_size=image_size))
+        image_size //= 2  # 8
+        
+        self.decoder_blocks = nn.ModuleList()
+        self.decoder_blocks.append(MBConvBlock(kernel_size=3, stride=1, expand_ratio=5, input_filters=dim1 * 2, output_filters=dim1, image_size=image_size))
+        #self.decoder_blocks.append(MBConvBlock(kernel_size=3, stride=1, expand_ratio=5, input_filters=dim1, output_filters=dim1, image_size=image_size))
+
+        image_size *= 2  # 16
+        self.decoder_blocks.append(MBConvBlock(kernel_size=3, stride=1, expand_ratio=5, input_filters=dim1 * 2, output_filters=dim1, image_size=image_size))
+        self.decoder_blocks.append(MBConvBlock(kernel_size=3, stride=1, expand_ratio=5, input_filters=dim1, output_filters=dim1, image_size=image_size))
+        image_size *= 2  # 32
+        self.decoder_blocks.append(MBConvBlock(kernel_size=3, stride=1, expand_ratio=5, input_filters=dim1 * 2, output_filters=dim1, image_size=image_size))
+        #self.decoder_blocks.append(MBConvBlock(kernel_size=3, stride=1, expand_ratio=5, input_filters=dim1, output_filters=dim1, image_size=image_size))
+        self.decoder_blocks.append(MBConvBlock(kernel_size=3, stride=1, expand_ratio=5, input_filters=dim1, output_filters=out_dims, image_size=image_size))
+
+    def forward(self, local_features, global_features):
+        # TODO: 入出力
+        print("in")
+        skips = []
+
+        device = next(self.parameters()).device
+
+        self.global_feature_mapping.to(device)
+
+        batch_size = global_features.size(0)
+
+        # [batch_size, global_dims] -> [batch_size, dim1]
+        g = self.swish(self.global_feature_bn_1(self.global_feature_linear_1(global_features)))
+        # [batch_size, dim1] -> [batch_size, dim1, 10]
+        g = self.swish(self.global_feature_bn_2(self.global_feature_linear_2(g))).view(batch_size, -1, 10)
+        # [batch_size, dim1, 10] -> [batch_size, dim1, 8, 8]
+        g = g[:, :, self.global_feature_mapping]
+        print(g.shape)
+
+        # [batch_size, in_dims, 32, 32] -> [batch_size, dim1, 32, 32]
+        x = self.swish(self.pre_bn(self.pre_conv(local_features)))
+        # [batch_size, dim1, 32, 32] -> [batch_size, dim1, 8, 8]
+        for block in self.encoder_blocks:
+            print(x.shape)
+            if block.stride == 2:
+                skips.append(x)
+            x = block(x)
+        # [batch_size, dim1, 8, 8] -> [batch_size, out_dims, 32, 32]
+        print()
+        x = torch.cat([x, g], dim=1)
+        for block in self.decoder_blocks:
+            print(x.shape)
+            if x.size(1) != block.input_filters:
+                x = F.interpolate(x, scale_factor=2, mode="nearest")
+                x = torch.cat([x, skips.pop()], dim=1)
+            x = block(x)
+        assert len(skips) == 0
+        return x
 
 
 class Environment(BaseEnvironment):
-    X, Y = 'ABC',  '123'
-    BLACK, WHITE = 1, -1
-    C = {0: '_', BLACK: 'O', WHITE: 'X'}
+    N_GLOBAL_FEATURES = 25
+    N_LOCAL_FEATURES = 30
 
     def __init__(self, args=None):
         super().__init__()
+        self.port = random.randint(10000, 60000)
+        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server_socket.bind(("127.0.0.1", self.port))
+        self.server_socket.listen(1)  # 接続待ち
+        self.p_game = None
         self.reset()
-    
-    def _read(self):
-        inp = self.p_game.stdout.readline().decode().strip().split()
-        try:
-            return list(map(int, inp))
-        except Exception as e:
-            print(["エラー！！"], *inp, file=sys.stderr)
-            raise e 
+
+    def _send(self, data):
+        sum_sent = 0
+        while sum_sent < len(data):
+            sent = self.sock.send(data[sum_sent:])
+            if sent == 0:
+                raise RuntimeError("socket connection broken")
+            sum_sent = sum_sent + sent
+
+    def _recv(self, length):
+        chunks = []
+        bytes_recd = 0
+        while bytes_recd < length:
+            chunk = self.sock.recv(min(length - bytes_recd, 2048))
+            if chunk == b'':
+                raise RuntimeError("socket connection broken")
+            chunks.append(chunk)
+            bytes_recd = bytes_recd + len(chunk)
+        return b''.join(chunks)
 
     def reset(self, args=None):
-        self.p_game = Popen("", stdin=PIPE, stdout=PIPE, stderr=STDOUT)  # TODO
-        
-        self.n_pets = self._read()[0]
-        py, px, pt
-        self.n_people = 
-        y, x
-
-
-        # self.board = np.zeros((3, 3))  # (x, y)
-        # self.color = self.BLACK
-        # self.win_color = 0
-        # self.record = []
-
-    # def action2str(self, a, _=None):
-    #     return self.X[a // 3] + self.Y[a % 3]
-
-    # def str2action(self, s, _=None):
-    #     return self.X.find(s[0]) * 3 + self.Y.find(s[1])
-
-    # def record_string(self):
-    #     return ' '.join([self.action2str(a) for a in self.record])
-
-    # def __str__(self):
-    #     s = '  ' + ' '.join(self.Y) + '\n'
-    #     for i in range(3):
-    #         s += self.X[i] + ' ' + ' '.join([self.C[self.board[i, j]] for j in range(3)]) + '\n'
-    #     s += 'record = ' + self.record_string()
-    #     return s
-
-    # def play(self, action, _=None):
-    #     # action: "udlrUDLR." 通行不能にする、移動する、何もしない
-    #     self.p_game.write()
-
-
-    #     # state transition function
-    #     # action is integer (0 ~ 8)
-    #     x, y = action // 3, action % 3
-    #     self.board[x, y] = self.color
-
-    #     # check winning condition
-    #     win = self.board[x, :].sum() == 3 * self.color \
-    #         or self.board[:, y].sum() == 3 * self.color \
-    #         or (x == y and np.diag(self.board, k=0).sum() == 3 * self.color) \
-    #         or (x == 2 - y and np.diag(self.board[::-1, :], k=0).sum() == 3 * self.color)
-
-    #     if win:
-    #         self.win_color = self.color
-
-    #     self.color = -self.color
-    #     self.record.append(action)
+        if self.p_game is not None:
+            self.p_game.kill()
+        # TODO: ランダムシード
+        self.p_game = Popen(f"../../../tools/target/release/tester ../../../env.out {self.port} < ../../../tools/in/0000.txt", stdin=PIPE, stdout=PIPE, stderr=STDOUT)  # TODO
+        self.sock, address = self.server_socket.accept()
+        self.n_people = int(np.frombuffer(self._recv(1), dtype=np.int8))
+        self.current_turn = 0
+        self.obs = np.frombuffer(self._recv((self.N_GLOBAL_FEATURES + self.N_LOCAL_FEATURES * 32 * 32) * 4), dtype=np.float32)
 
     def step(self, actions):
-        for player_id, action in sorted(actions.items()):
-            
-
-
-    def diff_info(self, _):
-        if len(self.record) == 0:
-            return ""
-        return self.action2str(self.record[-1])
-
-    def update(self, info, reset):
-        if reset:
-            self.reset()
+        arr = []
+        for player_id, action in sorted(actions.items()):  # type: (int, int)
+            # player_id: int
+            arr.append(action)
+        arr = np.array(arr, dtype=np.int8)
+        self._send(arr.tobytes())
+        self.current_turn += 1
+        # 注: C++ 側で、最終ターンではすぐに終わらないようにする
+        if self.terminal():
+            self.reward_arr = np.zeros(self.n_people, dtype=np.float32)
+            self.outcome_arr = np.frombuffer(self._recv(self.n_people * 4), dtype=np.float32)
         else:
-            action = self.str2action(info)
-            self.play(action)
-
-    def turn(self):
-        return self.players()[len(self.record) % 2]
+            self.reward_arr = np.frombuffer(self._recv(self.n_people * 4), dtype=np.float32)
+            self.outcome_arr = np.zeros(self.n_people, dtype=np.float32)
+            self.obs_arr = np.frombuffer(self._recv((self.N_GLOBAL_FEATURES + self.N_LOCAL_FEATURES * 32 * 32) * 4), dtype=np.float32)
+            self.legal_actions_arr = np.frombuffer(self._recv(self.n_people * 2), dtype=np.int16)
 
     def terminal(self):
-        # check whether the state is terminal
-        return self.win_color != 0 or len(self.record) == 3 * 3
-
-    def outcome(self):
-        # terminal outcome
-        outcomes = [0, 0]
-        if self.win_color > 0:
-            outcomes = [1, -1]
-        if self.win_color < 0:
-            outcomes = [-1, 1]
-        return {p: outcomes[idx] for idx, p in enumerate(self.players())}
-
-    def legal_actions(self, _=None):
-        # legal action list
-        return [a for a in range(3 * 3) if self.board[a // 3, a % 3] == 0]
+        return self.current_turn == 300
 
     def players(self):
-        return [0, 1]
+        return list(range(10))
+    
+    def turns(self):
+        return list(range(len(self.n_people)))
 
+    def reward(self):
+        return {p: float(self.reward_arr[p]) if p < self.n_people else 0.0 for p in self.players()}
+
+    def outcome(self):
+        return {p: float(self.outcome_arr[p]) if p < self.n_people else 0.0 for p in self.players()}
+
+    def legal_actions(self, player):
+        if player < self.n_people:
+            return [a for a in range(9) if self.legal_actions_arr[player] >> a & 1]
+        else:
+            return []
+    
+    def observation(self, player=None):
+        return self.obs_arr
+    
     def net(self):
         return Model()
 
-    def observation(self, player=None):
-        # input feature for neural nets
-        turn_view = player is None or player == self.turn()
-        color = self.color if turn_view else -self.color
-        a = np.stack([
-            np.ones_like(self.board) if turn_view else np.zeros_like(self.board),
-            self.board == color,
-            self.board == -color
-        ]).astype(np.float32)
-        return a
+    def action2str(self, a, player=None):
+        return "udlrUDLR."[a]
+
+    def str2action(self, s, player=None):
+        return "udlrUDLR.".index(s)
 
 
 if __name__ == '__main__':
