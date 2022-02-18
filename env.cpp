@@ -55,19 +55,42 @@ template <typename T> void Recv(T& data) {
 
 void MakeEnvironment() {
     Initialize();
+    Send((i8)common::M);
     PreComputeFeatures();
     rep(_, 300) {
         ExtractFeatures();
-        Predict();
+        Send(features::observation_global);
+        Send(features::observation_local);
+        ComputeLegalActions();
+        rep(i, common::M) {
+            Send((short)common::legal_actions[i]); // TODO
+        }
+        rep(i, common::M) {
+            auto action = (i8)8;
+            Recv(action);
+            common::human_moves[i] = "udlrUDLR."[action];
+        }
+        // Predict();
         UpdateHuman();
+        ComputeReward();
+        rep(i, common::M) {
+            Send((float)reward[i]); // TODO
+        }
+        if (common::current_turn == 299)
+            break;
         Interact();
         PreComputeFeatures();
         UpdatePets();
         common::current_turn++;
     }
+    ComputeOutCome();
+    rep(i, common::M) {
+        Send((float)outcome[i]); // TODO
+    }
+    Interact();
 }
 
-int main() {
+int main(int argc, char* argv[]) {
     // TODO
-    MakeEnvironment()
+    MakeEnvironment();
 }

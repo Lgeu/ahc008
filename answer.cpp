@@ -1546,6 +1546,12 @@ auto pet_moves = array<string, 20>();
 auto elapsed_turn_after_dog_meets_human = array<int, 20>();
 auto dog_targeting_probability = Board<double, 20, 10>();
 
+auto legal_actions = array<short, 10>();
+
+auto log_reward_ratio = 0.2;
+auto reward = array<float, 10>();
+auto outcome = array<float, 10>();
+
 } // namespace common
 
 namespace features {
@@ -1787,7 +1793,6 @@ void UpdatePets() {
 }
 
 namespace features {
-//
 
 // global features
 auto turn = 0;
@@ -2280,6 +2285,40 @@ void ExtractFeatures() {
 }
 
 void PrintFeatures() {
+    // TODO
+}
+
+void ComputeLegalActions() {
+    using common::legal_actions;
+    fill(legal_actions.begin(), legal_actions.end(), 1 << 8);
+    rep(i, common::M) {
+        const auto& v = common::human_positions[i];
+        rep(mv, 4) {
+            const auto u = v + DIRECTION_VECS[mv];
+            if (common::fence_board[u])
+                continue;
+            legal_actions[i] |= 1 << (mv + 4);
+            if (common::pet_count_board[u] || common::human_count_board[u])
+                continue;
+            rep(mv2, 4) {
+                if (common::pet_count_board[u + DIRECTION_VECS[mv2]])
+                    goto break_continue;
+            }
+            legal_actions[i] |= 1 << mv;
+        break_continue:;
+        }
+    }
+}
+
+void ComputeReward() {
+    using common::log_reward_ratio;
+    using common::reward;
+    // TODO
+}
+
+void ComputeOutcome() {
+    using common::log_reward_ratio;
+    using common::outcome;
     // TODO
 }
 

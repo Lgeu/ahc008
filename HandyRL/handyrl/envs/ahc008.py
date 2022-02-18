@@ -251,6 +251,7 @@ class Environment(BaseEnvironment):
         self.n_people = int(np.frombuffer(self._recv(1), dtype=np.int8))
         self.current_turn = 0
         self.obs = np.frombuffer(self._recv((self.N_GLOBAL_FEATURES + self.N_LOCAL_FEATURES * 32 * 32) * 4), dtype=np.float32)
+        self.legal_actions_arr = np.frombuffer(self._recv(self.n_people * 2), dtype=np.int16)
 
     def step(self, actions):
         arr = []
@@ -261,11 +262,10 @@ class Environment(BaseEnvironment):
         self._send(arr.tobytes())
         self.current_turn += 1
         # 注: C++ 側で、最終ターンではすぐに終わらないようにする
+        self.reward_arr = np.frombuffer(self._recv(self.n_people * 4), dtype=np.float32)
         if self.terminal():
-            self.reward_arr = np.zeros(self.n_people, dtype=np.float32)
             self.outcome_arr = np.frombuffer(self._recv(self.n_people * 4), dtype=np.float32)
         else:
-            self.reward_arr = np.frombuffer(self._recv(self.n_people * 4), dtype=np.float32)
             self.outcome_arr = np.zeros(self.n_people, dtype=np.float32)
             self.obs_arr = np.frombuffer(self._recv((self.N_GLOBAL_FEATURES + self.N_LOCAL_FEATURES * 32 * 32) * 4), dtype=np.float32)
             self.legal_actions_arr = np.frombuffer(self._recv(self.n_people * 2), dtype=np.int16)
