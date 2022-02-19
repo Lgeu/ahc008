@@ -209,7 +209,7 @@ class Model(nn.Module):
 
 class Environment(BaseEnvironment):
     N_GLOBAL_FEATURES = 25
-    N_LOCAL_FEATURES = 30
+    N_LOCAL_FEATURES = 31
 
     def __init__(self, args=None):
         super().__init__()

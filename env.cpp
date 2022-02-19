@@ -1,4 +1,5 @@
 #include <arpa/inet.h> //バイトオーダの変換に利用
+#include <cstdlib>
 #include <string.h>
 #include <sys/socket.h> //アドレスドメイン
 #include <sys/types.h>  //ソケットタイプ
@@ -57,6 +58,7 @@ void MakeEnvironment() {
     Initialize();
     Send((i8)common::M);
     PreComputeFeatures();
+    ComputeReward();
     rep(_, 300) {
         ExtractFeatures();
         Send(features::observation_global);
@@ -74,7 +76,7 @@ void MakeEnvironment() {
         UpdateHuman();
         ComputeReward();
         rep(i, common::M) {
-            Send((float)reward[i]); // TODO
+            Send((float)rl::reward[i]); // TODO
         }
         if (common::current_turn == 299)
             break;
@@ -83,14 +85,20 @@ void MakeEnvironment() {
         UpdatePets();
         common::current_turn++;
     }
-    ComputeOutCome();
+    ComputeOutcome();
     rep(i, common::M) {
-        Send((float)outcome[i]); // TODO
+        Send((float)rl::outcome[i]); // TODO
     }
     Interact();
 }
 
 int main(int argc, char* argv[]) {
     // TODO
+    if (argc >= 2) {
+        rl::log_reward_ratio = atof(argv[1]);
+    }
+    if (argc >= 3) {
+        rl::reward_coef = atof(argv[2]);
+    }
     MakeEnvironment();
 }

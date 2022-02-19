@@ -1548,16 +1548,12 @@ auto dog_targeting_probability = Board<double, 20, 10>();
 
 auto legal_actions = array<short, 10>();
 
-auto log_reward_ratio = 0.2;
-auto reward = array<float, 10>();
-auto outcome = array<float, 10>();
-
 } // namespace common
 
 namespace features {
 
 constexpr auto N_GLOBAL_FEATURES = 25;
-constexpr auto N_LOCAL_FEATURES = 30;
+constexpr auto N_LOCAL_FEATURES = 31;
 alignas(64) auto distances_from_each_human = array<Board<short, 32, 32>, 10>();
 alignas(64) auto distances_from_each_pet = array<Board<short, 32, 32>, 10>();
 
@@ -1780,7 +1776,6 @@ void UpdatePets() {
                     }
                     rep(idx_human, common::M) { dog_targeting_probability[{i, idx_human}] *= (1.0 / sum_proba); }
                 }
-                // TODO: 人からの最短距離を先に計算しないといけない
             }
         }
         pet_count_board[v]++;
@@ -1788,7 +1783,7 @@ void UpdatePets() {
             elapsed_turn_after_dog_meets_human[i] = 0;
         }
 
-        // pet_history[i][current_turn] = ; // TODO
+        // pet_history[i][current_turn] = ; // まあ、いらんか…
     }
 }
 
@@ -2280,6 +2275,13 @@ void ExtractFeatures() {
         rep(y, 32) rep(x, 32) { l[idx_l][y][x] = f::distances_from_each_human[max_area_human][{y, x}] != 999; }
         idx_l++;
 
+        // 人に対して、そこの面積
+        l[idx_l].Fill(0);
+        rep(i, common::M) {
+            const auto& v = common::human_positions[i];
+            l[idx_l][v.y][v.x] = features::area_each_human[i];
+        }
+
         assert(idx_l == f::N_LOCAL_FEATURES);
     }
 }
@@ -2310,16 +2312,104 @@ void ComputeLegalActions() {
     }
 }
 
+namespace rl {
+
+auto log_reward_ratio = 0.2;
+auto reward = array<float, 10>();
+auto cumulative_linear_reward = array<float, 10>();
+auto cumulative_log_reward = array<float, 10>();
+auto linear_outcome = array<float, 10>();
+auto log_outcome = array<float, 10>();
+auto outcome = array<float, 10>();
+auto reward_coef = 1.0;
+
+} // namespace rl
+
 void ComputeReward() {
-    using common::log_reward_ratio;
-    using common::reward;
-    // TODO
+    // 各人に対して、捕まり率みたいなものを使って計算した点数を出力
+    using rl::cumulative_linear_reward;
+    using rl::cumulative_log_reward;
+    using rl::log_reward_ratio;
+    using rl::reward;
+    using rl::reward_coef;
+
+    auto capturability_point = array<float, 20>();
+    // ペットごとにシミュレートしようかと思ったけど面倒だから全部ランダムでいいや…
+    rep(i, common::N) {
+        auto dp = Board<double, 32, 32>();
+        const auto& v = common::pet_positions[i];
+        dp[v] = 1.0;
+        rep(t, 10) {
+            auto new_dp = Board<double, 32, 32>();
+            rep3(y, 1, 31) rep3(x, 1, 31) {
+                const auto v = Vec2{y, x};
+                auto n_open = 1e-100;
+                for (const auto& d : DIRECTION_VECS) {
+                    if (!common::fence_board[v + d]) {
+                        n_open++;
+                    }
+                }
+                for (const auto& d : DIRECTION_VECS) {
+                    if (!common::fence_board[v + d]) {
+                        new_dp[v + d] += dp[v] / n_open;
+                    }
+                }
+            }
+            dp = new_dp;
+        }
+        auto sum = Vec2{0, 0};
+        auto sum_sq = Vec2{0, 0};
+        rep3(y, 1, 31) rep3(x, 1, 31) {
+            sum += dp[{y, x}] * Vec2{y, x};
+            sum_sq += dp[{y, x}] * Vec2{y * y, x * x};
+        }
+        const auto var = sum_sq - Vec2{sum.y * sum.y, sum.x * sum.x};
+        const auto std = sqrt((double)(var.y + var.x));
+        constexpr auto MAX_STD = 3.1622776601683795;
+        capturability_point[i] = 1.0 - std * (1.0 / MAX_STD);
+    }
+
+    auto new_cumulative_linear_reward = array<float, 10>();
+    auto new_cumulative_log_reward = array<float, 10>();
+    rep(idx_human, common::M) {
+        auto n = 0.0;
+        rep(i, common::N) {
+            if (features::distances_from_each_human[idx_human][common::pet_positions[i]] == 999) {
+                n++;
+            } else {
+                n += capturability_point[i];
+            }
+        }
+        const auto& area = features::area_each_human[idx_human];
+        new_cumulative_linear_reward[idx_human] = (1.0 / 900.0) * area * exp2(-n);
+        new_cumulative_log_reward[idx_human] = (log2((1.0 / 900.0) * area) - n) / (double)common::N + 1.0;
+        reward[idx_human] = (new_cumulative_linear_reward[idx_human] - cumulative_linear_reward[idx_human]) * (1.0 - rl::log_reward_ratio) +
+                            (new_cumulative_log_reward[idx_human] - cumulative_log_reward[idx_human]) * rl::log_reward_ratio;
+        reward[idx_human] *= reward_coef;
+    }
+    cumulative_linear_reward = new_cumulative_linear_reward;
+    cumulative_log_reward = new_cumulative_log_reward;
 }
 
 void ComputeOutcome() {
-    using common::log_reward_ratio;
-    using common::outcome;
-    // TODO
+    using rl::linear_outcome;
+    using rl::log_outcome;
+    using rl::log_reward_ratio;
+    using rl::outcome;
+    // 各人に対して点数を出力
+
+    rep(idx_human, common::M) {
+        auto n = 0.0;
+        rep(i, common::N) {
+            if (features::distances_from_each_human[idx_human][common::pet_positions[i]] == 999) {
+                n++;
+            }
+        }
+        const auto& area = features::area_each_human[idx_human];
+        linear_outcome[idx_human] = (1.0 / 900.0) * area * exp2(-n);
+        log_outcome[idx_human] = (log2((1.0 / 900.0) * area) - n) / (double)common::N + 1.0;
+        outcome[idx_human] = linear_outcome[idx_human] * (1.0 - rl::log_reward_ratio) + log_outcome[idx_human] * rl::log_reward_ratio;
+    }
 }
 
 void Predict() {
