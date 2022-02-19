@@ -11,6 +11,7 @@
 
 namespace connection {
 
+auto port = 1234;
 auto sockfd = 0;
 struct sockaddr_in addr;
 
@@ -25,8 +26,9 @@ void InitConnection() {
     }
 
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(1234);
+    addr.sin_port = htons(port);
     addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    cout << "#port=" << port << endl;
     connect(sockfd, (struct sockaddr*)&addr, sizeof(struct sockaddr_in));
 }
 
@@ -55,6 +57,7 @@ template <typename T> void Recv(T& data) {
 }
 
 void MakeEnvironment() {
+    InitConnection();
     Initialize();
     Send((i8)common::M);
     PreComputeFeatures();
@@ -94,11 +97,13 @@ void MakeEnvironment() {
 
 int main(int argc, char* argv[]) {
     // TODO
-    if (argc >= 2) {
-        rl::log_reward_ratio = atof(argv[1]);
-    }
+    assert(argc >= 2);
+    connection::port = atoi(argv[1]);
     if (argc >= 3) {
-        rl::reward_coef = atof(argv[2]);
+        rl::log_reward_ratio = atof(argv[2]);
+    }
+    if (argc >= 4) {
+        rl::reward_coef = atof(argv[3]);
     }
     MakeEnvironment();
 }

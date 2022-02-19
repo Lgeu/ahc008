@@ -1,6 +1,8 @@
+import sys
 import math
 import random
 import socket
+from threading import Thread, local
 from subprocess import Popen, PIPE, STDOUT
 
 import numpy as np
@@ -10,6 +12,8 @@ import torch.nn.functional as F
 
 from ..environment import BaseEnvironment
 
+N_GLOBAL_FEATURES = 25
+N_LOCAL_FEATURES = 31
 
 class Conv2dStaticSamePadding(nn.Conv2d):
     def __init__(self, in_channels, out_channels, kernel_size, stride=1, image_size=None, **kwargs):
@@ -120,13 +124,11 @@ class Model(nn.Module):
     def __init__(self):
         super().__init__()
         image_size = 32
-        global_feature_dims = 25
-        local_feature_dims = 30
         out_dims = 9 + 1 + 1 + 1  # 方策 (人)、reward (ペット)、面積 (人)、 捕まる確率 (ペット)
 
         dim1 = 32
 
-        self.global_feature_linear_1 = nn.Linear(global_feature_dims, dim1)
+        self.global_feature_linear_1 = nn.Linear(N_GLOBAL_FEATURES, dim1)
         self.global_feature_bn_1 = nn.BatchNorm1d(dim1)
         self.global_feature_linear_2 = nn.Linear(dim1, dim1 * 10)
         self.global_feature_bn_2 = nn.BatchNorm1d(dim1 * 10)
@@ -141,7 +143,7 @@ class Model(nn.Module):
             [0, 1, 2, 3, 3, 2, 1, 0],
         ])
 
-        self.pre_conv = nn.Conv2d(local_feature_dims, dim1, kernel_size=3, stride=1, padding="same", bias=False)
+        self.pre_conv = nn.Conv2d(N_LOCAL_FEATURES, dim1, kernel_size=3, stride=1, padding="same", bias=False)
         self.pre_bn = nn.BatchNorm2d(dim1)
         self.swish = MemoryEfficientSwish()
 
@@ -207,9 +209,20 @@ class Model(nn.Module):
         return x
 
 
+def read_stream(idx_procs, in_file, out_file):
+    for line in in_file:
+        print(f"[{idx_procs}] {line.strip()}", file=out_file)
+
+def popen(cmd, name):
+    proc = Popen(cmd, stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True)
+    stdout_thread = Thread(target=read_stream, args=(name, proc.stdout, sys.stdout))
+    stderr_thread = Thread(target=read_stream, args=(name, proc.stderr, sys.stderr))
+    stdout_thread.start()
+    stderr_thread.start()
+    #proc.wait()
+    return proc
+
 class Environment(BaseEnvironment):
-    N_GLOBAL_FEATURES = 25
-    N_LOCAL_FEATURES = 31
 
     def __init__(self, args=None):
         super().__init__()
@@ -218,7 +231,31 @@ class Environment(BaseEnvironment):
         self.server_socket.bind(("127.0.0.1", self.port))
         self.server_socket.listen(1)  # 接続待ち
         self.p_game = None
+        self.obs_arr = None
         self.reset()
+
+    def print(self):
+        if self.obs_arr is None:
+            print("")
+        else:
+            global_features = self.obs_arr[:N_GLOBAL_FEATURES]
+            local_features = self.obs_arr[N_GLOBAL_FEATURES:].reshape(-1, 32, 32)
+            board = [["."] * 32 for _ in range(32)]
+            human_board = local_features[0]
+            fence_board = local_features[1]
+            # print(local_features[1])
+            # print(local_features[2])
+            for y in range(32):
+                for x in range(32):
+                    if human_board[y, x]:
+                        board[y][x] = "@"
+                    elif fence_board[y, x]:
+                        board[y][x] = "#"
+                    elif local_features[3, y, x] == 0.0:
+                        board[y][x] = "*"
+            for y in range(32):
+                print("".join(board[y]))
+
 
     def __del__(self):
         self.server_socket.close()
@@ -246,44 +283,59 @@ class Environment(BaseEnvironment):
         if self.p_game is not None:
             self.p_game.kill()
         # TODO: ランダムシード
-        self.p_game = Popen(f"../../../tools/target/release/tester ../../../env.out {self.port} < ../../../tools/in/0000.txt", stdin=PIPE, stdout=PIPE, stderr=STDOUT)  # TODO
+        self.error = False
+        cmd = f"../tools/target/release/tester ../env.out {self.port} < ../tools/in/0000.txt"
+        self.p_game = popen(cmd, "game")
         self.sock, address = self.server_socket.accept()
+        self.sock.settimeout(5)
         self.n_people = int(np.frombuffer(self._recv(1), dtype=np.int8))
         self.current_turn = 0
-        self.obs = np.frombuffer(self._recv((self.N_GLOBAL_FEATURES + self.N_LOCAL_FEATURES * 32 * 32) * 4), dtype=np.float32)
+        self.obs_arr = np.frombuffer(self._recv((N_GLOBAL_FEATURES + N_LOCAL_FEATURES * 32 * 32) * 4), dtype=np.float32)
         self.legal_actions_arr = np.frombuffer(self._recv(self.n_people * 2), dtype=np.int16)
+        
 
     def step(self, actions):
-        arr = []
-        for player_id, action in sorted(actions.items()):  # type: (int, int)
-            # player_id: int
-            arr.append(action)
-        arr = np.array(arr, dtype=np.int8)
-        self._send(arr.tobytes())
-        self.current_turn += 1
-        # 注: C++ 側で、最終ターンではすぐに終わらないようにする
-        self.reward_arr = np.frombuffer(self._recv(self.n_people * 4), dtype=np.float32)
-        if self.terminal():
-            self.outcome_arr = np.frombuffer(self._recv(self.n_people * 4), dtype=np.float32)
-        else:
-            self.outcome_arr = np.zeros(self.n_people, dtype=np.float32)
-            self.obs_arr = np.frombuffer(self._recv((self.N_GLOBAL_FEATURES + self.N_LOCAL_FEATURES * 32 * 32) * 4), dtype=np.float32)
-            self.legal_actions_arr = np.frombuffer(self._recv(self.n_people * 2), dtype=np.int16)
+        try:
+            arr = []
+            for player_id, action in sorted(actions.items()):  # type: (int, int)
+                # player_id: int
+                arr.append(action)
+            arr = np.array(arr, dtype=np.int8)
+            self._send(arr.tobytes())
+            self.current_turn += 1
+            # 注: C++ 側で、最終ターンではすぐに終わらないようにする
+            self.reward_arr = np.frombuffer(self._recv(self.n_people * 4), dtype=np.float32)
+            if self.terminal():
+                self.outcome_arr = np.frombuffer(self._recv(self.n_people * 4), dtype=np.float32)
+            else:
+                self.outcome_arr = np.zeros(self.n_people, dtype=np.float32)
+                self.obs_arr = np.frombuffer(self._recv((N_GLOBAL_FEATURES + N_LOCAL_FEATURES * 32 * 32) * 4), dtype=np.float32)
+                self.legal_actions_arr = np.frombuffer(self._recv(self.n_people * 2), dtype=np.int16)
+        except Exception as e:
+            print("[Error] error occured!")
+            print(e)
+            self.error = True
 
     def terminal(self):
-        return self.current_turn == 300
+        return self.current_turn == 300 or self.error
 
     def players(self):
         return list(range(10))
     
     def turns(self):
-        return list(range(len(self.n_people)))
+        return list(range(self.n_people))
 
     def reward(self):
-        return {p: float(self.reward_arr[p]) if p < self.n_people else 0.0 for p in self.players()}
+        if self.error:
+            return {p: -1.0 for p in self.players()}
+        else:
+            return {p: float(self.reward_arr[p]) if p < self.n_people else 0.0 for p in self.players()}
 
     def outcome(self):
-        return {p: float(self.outcome_arr[p]) if p < self.n_people else 0.0 for p in self.players()}
+        if self.error:
+            return {p: -1.0 for p in self.players()}
+        else:
+            return {p: float(self.outcome_arr[p]) if p < self.n_people else 0.0 for p in self.players()}
 
     def legal_actions(self, player):
         if player < self.n_people:
@@ -292,6 +344,7 @@ class Environment(BaseEnvironment):
             return []
     
     def observation(self, player=None):
+        # TODO: 自分が誰かわかるようにする
         return self.obs_arr
     
     def net(self):
@@ -306,12 +359,12 @@ class Environment(BaseEnvironment):
 
 if __name__ == '__main__':
     e = Environment()
-    for _ in range(100):
+    for _ in range(1):
         e.reset()
         while not e.terminal():
-            print(e)
-            actions = e.legal_actions()
-            print([e.action2str(a) for a in actions])
-            e.play(random.choice(actions))
-        print(e)
+            e.print()
+            actions = {p: e.legal_actions(p) for p in e.turns()}
+            print([[e.action2str(a, p) for a in alist] for p, alist in actions.items()])
+            e.step({p: random.choice(alist) for p, alist in actions.items()})
+        e.print()
         print(e.outcome())

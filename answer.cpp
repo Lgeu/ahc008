@@ -1582,6 +1582,10 @@ void Initialize() {
         fence_board[{i, 31}] = true;
         fence_board[{0, i}] = true;
         fence_board[{31, i}] = true;
+        features::observation_local[1][i][0] = 1.0f;
+        features::observation_local[1][i][31] = 1.0f;
+        features::observation_local[1][0][i] = 1.0f;
+        features::observation_local[1][31][i] = 1.0f;
     }
     dog_targeting_probability.Fill(1.0 / (double)M);
     rep(i, N) pet_moves[i] = "..";
@@ -1908,7 +1912,6 @@ void Dfs(const Vec2<i8>& v, const Vec2<i8>& p) {
     }
     n_human_in_subtree[v] += common::human_count_board[v];
     n_pets_in_subtree[v] += common::pet_count_board[v];
-    // cout << "#" << (int)v.y << "," << (int)v.x << "=" << (int)n_pets_in_subtree[v] << endl;
 }
 
 void Compute(const Vec2<i8>& start) {
@@ -1922,9 +1925,7 @@ void Compute(const Vec2<i8>& start) {
     n_pets_in_subtree.Fill(0);
     n_human_in_subtree.Fill(0);
     Dfs(start, {-1, -1});
-    cout << "#" << subtree_size[start] << endl;
-    cout << "#" << features::sum_n_remaining_pet << endl;
-    cout << "#" << (int)n_pets_in_subtree[start] << endl;
+    cout << "# subtree_size=" << subtree_size[start] << endl;
     assert(subtree_size[start] == features::max_area);
     assert(n_pets_in_subtree[start] == features::sum_n_remaining_pet);
     assert(n_human_in_subtree[start] == features::n_surviving_human);
@@ -2281,6 +2282,7 @@ void ExtractFeatures() {
             const auto& v = common::human_positions[i];
             l[idx_l][v.y][v.x] = features::area_each_human[i];
         }
+        idx_l++;
 
         assert(idx_l == f::N_LOCAL_FEATURES);
     }
