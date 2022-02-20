@@ -174,7 +174,6 @@ class Model(nn.Module):
         self.decoder_blocks.append(MBConvBlock(kernel_size=3, stride=1, expand_ratio=expand_ratio, input_filters=dim1, output_filters=out_dims, image_size=image_size))
 
     def forward(self, features, **kwargs):
-        # TODO: 入出力
         batch_size = features.size(0)
         global_features = features[:, :N_GLOBAL_FEATURES]
         local_features = features[:, N_GLOBAL_FEATURES:-2].reshape(batch_size, N_LOCAL_FEATURES, 32, 32)
@@ -304,6 +303,7 @@ class Environment(BaseEnvironment):
         self.n_people = int(np.frombuffer(self._recv(1), dtype=np.int8))
         self.current_turn = 0
         self.obs_arr = np.frombuffer(self._recv((N_GLOBAL_FEATURES + N_LOCAL_FEATURES * 32 * 32) * 4), dtype=np.float32)
+        self.human_positions = np.frombuffer(self._recv((10 * 2) * 4), dtype=np.int32).reshape(10, 2)
         self.legal_actions_arr = np.frombuffer(self._recv(self.n_people * 2), dtype=np.int16)
         
 
@@ -323,6 +323,7 @@ class Environment(BaseEnvironment):
             else:
                 self.outcome_arr = np.zeros(self.n_people, dtype=np.float32)
                 self.obs_arr = np.frombuffer(self._recv((N_GLOBAL_FEATURES + N_LOCAL_FEATURES * 32 * 32) * 4), dtype=np.float32)
+                self.human_positions = np.frombuffer(self._recv((10 * 2) * 4), dtype=np.int32).reshape(10, 2)
                 self.legal_actions_arr = np.frombuffer(self._recv(self.n_people * 2), dtype=np.int16)
         except Exception as e:
             print("[Error] error occured!")
@@ -356,9 +357,8 @@ class Environment(BaseEnvironment):
         else:
             return []
     
-    def observation(self, player=None):
-        # TODO: 自分が誰かわかるようにする
-        return self.obs_arr
+    def observation(self, player):
+        return np.concatenate([self.obs_arr, self.human_positions[player].astype(np.float32)])
     
     def net(self):
         return Model()
