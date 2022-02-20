@@ -12,8 +12,10 @@ import torch.nn.functional as F
 
 from ..environment import BaseEnvironment
 
+
 N_GLOBAL_FEATURES = 25
 N_LOCAL_FEATURES = 31
+
 
 class Conv2dStaticSamePadding(nn.Conv2d):
     def __init__(self, in_channels, out_channels, kernel_size, stride=1, image_size=None, **kwargs):
@@ -124,7 +126,9 @@ class Model(nn.Module):
     def __init__(self):
         super().__init__()
         image_size = 32
-        out_dims = 9 + 1 + 1 + 1  # 方策 (人)、reward (ペット)、面積 (人)、 捕まる確率 (ペット)
+        expand_ratio = 4
+        #out_dims = 9 + 1 + 1 + 1  # 方策 (人)、reward (ペット)、面積 (人)、 捕まる確率 (ペット)  # これめんどくさいし正当性あるのか微妙？
+        out_dims = 9 + 1 + 1  # 方策、reward、outcome
 
         dim1 = 32
 
@@ -148,30 +152,36 @@ class Model(nn.Module):
         self.swish = MemoryEfficientSwish()
 
         self.encoder_blocks = nn.ModuleList()
-        self.encoder_blocks.append(MBConvBlock(kernel_size=3, stride=1, expand_ratio=5, input_filters=dim1, output_filters=dim1, image_size=image_size))
+        self.encoder_blocks.append(MBConvBlock(kernel_size=3, stride=1, expand_ratio=expand_ratio, input_filters=dim1, output_filters=dim1, image_size=image_size))
         
-        self.encoder_blocks.append(MBConvBlock(kernel_size=3, stride=2, expand_ratio=5, input_filters=dim1, output_filters=dim1, image_size=image_size))
+        self.encoder_blocks.append(MBConvBlock(kernel_size=3, stride=2, expand_ratio=expand_ratio, input_filters=dim1, output_filters=dim1, image_size=image_size))
         image_size //= 2  # 16
-        self.encoder_blocks.append(MBConvBlock(kernel_size=3, stride=1, expand_ratio=5, input_filters=dim1, output_filters=dim1, image_size=image_size))
+        self.encoder_blocks.append(MBConvBlock(kernel_size=3, stride=1, expand_ratio=expand_ratio, input_filters=dim1, output_filters=dim1, image_size=image_size))
         
-        self.encoder_blocks.append(MBConvBlock(kernel_size=3, stride=2, expand_ratio=5, input_filters=dim1, output_filters=dim1, image_size=image_size))
+        self.encoder_blocks.append(MBConvBlock(kernel_size=3, stride=2, expand_ratio=expand_ratio, input_filters=dim1, output_filters=dim1, image_size=image_size))
         image_size //= 2  # 8
         
         self.decoder_blocks = nn.ModuleList()
-        self.decoder_blocks.append(MBConvBlock(kernel_size=3, stride=1, expand_ratio=5, input_filters=dim1 * 2, output_filters=dim1, image_size=image_size))
-        #self.decoder_blocks.append(MBConvBlock(kernel_size=3, stride=1, expand_ratio=5, input_filters=dim1, output_filters=dim1, image_size=image_size))
+        self.decoder_blocks.append(MBConvBlock(kernel_size=3, stride=1, expand_ratio=expand_ratio, input_filters=dim1 * 2, output_filters=dim1, image_size=image_size))
+        self.decoder_blocks.append(MBConvBlock(kernel_size=3, stride=1, expand_ratio=expand_ratio, input_filters=dim1, output_filters=dim1, image_size=image_size))
 
         image_size *= 2  # 16
-        self.decoder_blocks.append(MBConvBlock(kernel_size=3, stride=1, expand_ratio=5, input_filters=dim1 * 2, output_filters=dim1, image_size=image_size))
-        self.decoder_blocks.append(MBConvBlock(kernel_size=3, stride=1, expand_ratio=5, input_filters=dim1, output_filters=dim1, image_size=image_size))
+        self.decoder_blocks.append(MBConvBlock(kernel_size=3, stride=1, expand_ratio=expand_ratio, input_filters=dim1 * 2, output_filters=dim1, image_size=image_size))
+        self.decoder_blocks.append(MBConvBlock(kernel_size=3, stride=1, expand_ratio=expand_ratio, input_filters=dim1, output_filters=dim1, image_size=image_size))
         image_size *= 2  # 32
-        self.decoder_blocks.append(MBConvBlock(kernel_size=3, stride=1, expand_ratio=5, input_filters=dim1 * 2, output_filters=dim1, image_size=image_size))
-        #self.decoder_blocks.append(MBConvBlock(kernel_size=3, stride=1, expand_ratio=5, input_filters=dim1, output_filters=dim1, image_size=image_size))
-        self.decoder_blocks.append(MBConvBlock(kernel_size=3, stride=1, expand_ratio=5, input_filters=dim1, output_filters=out_dims, image_size=image_size))
+        self.decoder_blocks.append(MBConvBlock(kernel_size=3, stride=1, expand_ratio=expand_ratio, input_filters=dim1 * 2, output_filters=dim1, image_size=image_size))
+        self.decoder_blocks.append(MBConvBlock(kernel_size=3, stride=1, expand_ratio=expand_ratio, input_filters=dim1, output_filters=dim1, image_size=image_size))
+        self.decoder_blocks.append(MBConvBlock(kernel_size=3, stride=1, expand_ratio=expand_ratio, input_filters=dim1, output_filters=out_dims, image_size=image_size))
 
-    def forward(self, local_features, global_features):
+    def forward(self, features, **kwargs):
         # TODO: 入出力
-        print("in")
+        batch_size = features.size(0)
+        global_features = features[:, :N_GLOBAL_FEATURES]
+        local_features = features[:, N_GLOBAL_FEATURES:-2].reshape(batch_size, N_LOCAL_FEATURES, 32, 32)
+        player_y = features[:, -2].to(torch.long)
+        player_x = features[:, -1].to(torch.long)
+
+        #print("in")
         skips = []
 
         device = next(self.parameters()).device
@@ -186,27 +196,30 @@ class Model(nn.Module):
         g = self.swish(self.global_feature_bn_2(self.global_feature_linear_2(g))).view(batch_size, -1, 10)
         # [batch_size, dim1, 10] -> [batch_size, dim1, 8, 8]
         g = g[:, :, self.global_feature_mapping]
-        print(g.shape)
+        #print(g.shape)
 
         # [batch_size, in_dims, 32, 32] -> [batch_size, dim1, 32, 32]
         x = self.swish(self.pre_bn(self.pre_conv(local_features)))
         # [batch_size, dim1, 32, 32] -> [batch_size, dim1, 8, 8]
         for block in self.encoder_blocks:
-            print(x.shape)
+            #print(x.shape)
             if block.stride == 2:
                 skips.append(x)
             x = block(x)
         # [batch_size, dim1, 8, 8] -> [batch_size, out_dims, 32, 32]
-        print()
+        #print()
         x = torch.cat([x, g], dim=1)
         for block in self.decoder_blocks:
-            print(x.shape)
+            #print(x.shape)
             if x.size(1) != block.input_filters:
                 x = F.interpolate(x, scale_factor=2, mode="nearest")
                 x = torch.cat([x, skips.pop()], dim=1)
             x = block(x)
         assert len(skips) == 0
-        return x
+
+        # [batch_size, out_dims, 32, 32] -> [batch_size, out_dims]
+        x = x[torch.arange(batch_size), :, player_y, player_x]
+        return {"policy": x[:, :9], "value": x[:, 9], "return": x[:, 10]}
 
 
 def read_stream(idx_procs, in_file, out_file):
