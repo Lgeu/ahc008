@@ -1555,7 +1555,7 @@ namespace features {
 constexpr auto N_GLOBAL_FEATURES = 25;
 constexpr auto N_LOCAL_FEATURES = 31;
 alignas(64) auto distances_from_each_human = array<Board<short, 32, 32>, 10>();
-alignas(64) auto distances_from_each_pet = array<Board<short, 32, 32>, 10>();
+alignas(64) auto distances_from_each_pet = array<Board<short, 32, 32>, 20>();
 
 // 0 -> 人
 // 1 -> 柵
@@ -1720,7 +1720,7 @@ void UpdatePets() {
                 rep(idx_human, common::M) { dog_targeting_probability[{i, idx_human}] *= (1.0 / sum_proba); }
             }
         }
-        rep(idx_mv, pet_move.size()) {
+        rep(idx_mv, (int)pet_move.size()) {
             const auto& mv = pet_move[idx_mv];
             {
 
@@ -1961,6 +1961,7 @@ void PreComputeFeatures() {
     rep(i, common::M) { f::area_each_human[i] = bfs(common::fence_board, common::human_positions[i], f::distances_from_each_human[i]); }
     rep(i, common::N) { f::area_each_pet[i] = bfs(common::fence_board, common::pet_positions[i], f::distances_from_each_pet[i]); }
 }
+
 void ExtractFeatures() {
     // 特徴量抽出 (observation 作成)
     namespace f = features;

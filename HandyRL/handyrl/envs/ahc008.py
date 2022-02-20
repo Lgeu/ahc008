@@ -234,6 +234,7 @@ def popen(cmd, name):
     #proc.wait()
     return proc
 
+
 class Environment(BaseEnvironment):
 
     def __init__(self, args=None):
@@ -255,8 +256,8 @@ class Environment(BaseEnvironment):
             board = [["."] * 32 for _ in range(32)]
             human_board = local_features[0]
             fence_board = local_features[1]
-            # print(local_features[1])
-            # print(local_features[2])
+            print(local_features[1])
+            print(local_features[2])
             for y in range(32):
                 for x in range(32):
                     if human_board[y, x]:
@@ -296,7 +297,8 @@ class Environment(BaseEnvironment):
             self.p_game.kill()
         # TODO: ランダムシード
         self.error = False
-        cmd = f"../tools/target/release/tester ../env.out {self.port} < ../tools/in/0000.txt"
+        seed = random.randint(0, 999)
+        cmd = f"../tools/target/release/tester ../env.out {self.port} < ../tools/in/{seed:04d}.txt"
         self.p_game = popen(cmd, "game")
         self.sock, address = self.server_socket.accept()
         self.sock.settimeout(5)
@@ -305,8 +307,7 @@ class Environment(BaseEnvironment):
         self.obs_arr = np.frombuffer(self._recv((N_GLOBAL_FEATURES + N_LOCAL_FEATURES * 32 * 32) * 4), dtype=np.float32)
         self.human_positions = np.frombuffer(self._recv((10 * 2) * 4), dtype=np.int32).reshape(10, 2)
         self.legal_actions_arr = np.frombuffer(self._recv(self.n_people * 2), dtype=np.int16)
-        
-
+    
     def step(self, actions):
         try:
             arr = []
@@ -372,8 +373,7 @@ class Environment(BaseEnvironment):
 
 if __name__ == '__main__':
     e = Environment()
-    for _ in range(1):
-        e.reset()
+    for _ in range(3):
         while not e.terminal():
             e.print()
             actions = {p: e.legal_actions(p) for p in e.turns()}
@@ -381,3 +381,4 @@ if __name__ == '__main__':
             e.step({p: random.choice(alist) for p, alist in actions.items()})
         e.print()
         print(e.outcome())
+        e.reset()

@@ -35,7 +35,7 @@ void InitConnection() {
 template <typename T> void Send(const T& data) {
     using namespace connection;
     auto sum_sent = 0;
-    while (sum_sent < sizeof(data)) {
+    while (sum_sent < (int)sizeof(data)) {
         auto sent = send(sockfd, (char*)&data + sum_sent, sizeof(data) - sum_sent, 0);
         if (sent < 0) {
             exit(1);
@@ -47,7 +47,7 @@ template <typename T> void Send(const T& data) {
 template <typename T> void Recv(T& data) {
     using namespace connection;
     auto sum_recd = 0;
-    while (sum_recd < sizeof(data)) {
+    while (sum_recd < (int)sizeof(data)) {
         auto recd = recv(sockfd, (char*)&data + sum_recd, min((int)sizeof(data) - sum_recd, 2048), 0);
         if (recd < 0) {
             exit(1);
@@ -62,10 +62,12 @@ void MakeEnvironment() {
     Send((i8)common::M);
     PreComputeFeatures();
     ComputeReward();
+
     rep(_, 300) {
         ExtractFeatures();
         Send(features::observation_global);
         Send(features::observation_local);
+        Send(common::human_positions);
         ComputeLegalActions();
         rep(i, common::M) {
             Send((short)common::legal_actions[i]); // TODO
