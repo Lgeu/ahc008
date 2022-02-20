@@ -2360,27 +2360,28 @@ void ComputeReward() {
             }
             dp = new_dp;
         }
-        auto sum = Vec2{0, 0};
-        auto sum_sq = Vec2{0, 0};
+        auto sum = Vec2{0.0, 0.0};
+        auto sum_sq = Vec2{0.0, 0.0};
         rep3(y, 1, 31) rep3(x, 1, 31) {
-            sum += dp[{y, x}] * Vec2{y, x};
-            sum_sq += dp[{y, x}] * Vec2{y * y, x * x};
+            sum += dp[{y, x}] * Vec2<double>{y, x};
+            sum_sq += dp[{y, x}] * Vec2<double>{y * y, x * x};
         }
         const auto var = sum_sq - Vec2{sum.y * sum.y, sum.x * sum.x};
         const auto std = sqrt((double)(var.y + var.x));
-        constexpr auto MAX_STD = 3.1622776601683795;
+        constexpr auto MAX_STD = 3.1622776601683795; // sqrt(10) // これより大きくなることがあるみたいだけどよくわからん…
         capturability_point[i] = 1.0 - std * (1.0 / MAX_STD);
+        // cout << "#capturability_point[i]=" << capturability_point[i] << endl;
     }
 
     auto new_cumulative_linear_reward = array<float, 10>();
     auto new_cumulative_log_reward = array<float, 10>();
     rep(idx_human, common::M) {
-        auto n = 0.0;
+        auto n = (double)common::N;
         rep(i, common::N) {
             if (features::distances_from_each_human[idx_human][common::pet_positions[i]] == 999) {
-                n++;
+                n--;
             } else {
-                n += capturability_point[i];
+                n -= capturability_point[i];
             }
         }
         const auto& area = features::area_each_human[idx_human];
@@ -2402,10 +2403,10 @@ void ComputeOutcome() {
     // 各人に対して点数を出力
 
     rep(idx_human, common::M) {
-        auto n = 0.0;
+        auto n = (double)common::N;
         rep(i, common::N) {
             if (features::distances_from_each_human[idx_human][common::pet_positions[i]] == 999) {
-                n++;
+                n--;
             }
         }
         const auto& area = features::area_each_human[idx_human];

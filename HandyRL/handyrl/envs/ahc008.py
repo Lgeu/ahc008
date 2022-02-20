@@ -269,8 +269,9 @@ class Environment(BaseEnvironment):
             for y in range(32):
                 print("".join(board[y]))
 
-
     def __del__(self):
+        self.p_game.kill()
+        self.sock.close()
         self.server_socket.close()
 
     def _send(self, data):
@@ -373,12 +374,15 @@ class Environment(BaseEnvironment):
 
 if __name__ == '__main__':
     e = Environment()
-    for _ in range(3):
+    for iteration in range(3):
+        print(f"iteration {iteration}")
         while not e.terminal():
             e.print()
             actions = {p: e.legal_actions(p) for p in e.turns()}
             print([[e.action2str(a, p) for a in alist] for p, alist in actions.items()])
             e.step({p: random.choice(alist) for p, alist in actions.items()})
+            print(e.reward())
         e.print()
         print(e.outcome())
         e.reset()
+    del e
