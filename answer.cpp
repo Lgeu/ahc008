@@ -12,6 +12,7 @@
 #include <ostream>
 #include <thread>
 #include <type_traits>
+#include <vector>
 
 #ifdef _MSC_VER
 #include <intrin.h>
