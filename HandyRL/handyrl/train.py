@@ -121,6 +121,7 @@ def make_batch(episodes, args):
 
     obs = to_torch(bimap_r(obs_zeros, rotate(obss), lambda _, o: np.array(o)))
     prob, v, act, oc, rew, ret, emask, tmask, omask, amask, progress = [to_torch(np.array(val)) for val in zip(*datum)]
+    #print("awsedrftgyhujikolp;", v.shape, omask.shape)
 
     return {
         'observation': obs,
@@ -162,6 +163,7 @@ def forward_prediction(model, hidden, batch, args):
             outputs[k] = o - batch['action_mask']
         else:
             # mask valid target values and cumulative rewards
+            #print(k, outputs[k].shape, o.shape, batch['observation_mask'].shape)
             outputs[k] = o.mul(batch['observation_mask'])
 
     return outputs

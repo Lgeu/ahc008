@@ -2,6 +2,7 @@ import sys
 import math
 import random
 import socket
+import datetime
 import traceback
 from threading import Thread, local
 from subprocess import Popen, PIPE, STDOUT
@@ -175,6 +176,7 @@ class Model(nn.Module):
         self.decoder_blocks.append(MBConvBlock(kernel_size=3, stride=1, expand_ratio=expand_ratio, input_filters=dim1, output_filters=out_dims, image_size=image_size))
 
     def forward(self, features, *args, **kwargs):
+        #features = features.squeeze(-2)
         batch_size = features.size(0)
         global_features = features[:, :N_GLOBAL_FEATURES]
         local_features = features[:, N_GLOBAL_FEATURES:-2].reshape(batch_size, N_LOCAL_FEATURES, 32, 32)
@@ -219,7 +221,7 @@ class Model(nn.Module):
 
         # [batch_size, out_dims, 32, 32] -> [batch_size, out_dims]
         x = x[torch.arange(batch_size), :, player_y, player_x]
-        return {"policy": x[:, :9], "value": x[:, 9], "return": x[:, 10]}
+        return {"policy": x[:, :9], "value": x[:, 9:10], "return": x[:, 10:11]}
 
 
 def read_stream(idx_procs, in_file, out_file):
@@ -237,7 +239,6 @@ def popen(cmd, name):
 
 
 class Environment(BaseEnvironment):
-
     def __init__(self, args=None):
         super().__init__()
         self.port = random.randint(10000, 60000)
@@ -298,14 +299,21 @@ class Environment(BaseEnvironment):
         if self.p_game is not None:
             self.p_game.kill()
         self.error = False
-        seed = random.randint(0, 999)
-        cmd = f"../tools/target/release/tester ../env.out {self.port} < ../tools/in/{seed:04d}.txt"
+        self.seed = random.randint(0, 999)
+        cmd = f"../tools/target/release/tester ../env.out {self.port} < ../tools/in/{self.seed:04d}.txt > ../out/{datetime.datetime.now().isoformat()}_{self.seed:04d}.txt"
         self.p_game = popen(cmd, "game")
         self.sock, address = self.server_socket.accept()
         self.sock.settimeout(5)
         self.n_people = int(np.frombuffer(self._recv(1), dtype=np.int8))
         self.current_turn = 0
         self.obs_arr = np.frombuffer(self._recv((N_GLOBAL_FEATURES + N_LOCAL_FEATURES * 32 * 32) * 4), dtype=np.float32)
+
+        # ami = self.obs_arr.argmin()
+        # ama = self.obs_arr.argmax()
+        # print("min:", np.unravel_index(ami, self.obs_arr.shape), self.obs_arr.ravel()[ami])
+        # print("max:", np.unravel_index(ama, self.obs_arr.shape), self.obs_arr.ravel()[ama])
+
+        assert (self.obs_arr == self.obs_arr).all()
         self.human_positions = np.frombuffer(self._recv((10 * 2) * 4), dtype=np.int32).reshape(10, 2)
         self.legal_actions_arr = np.frombuffer(self._recv(self.n_people * 2), dtype=np.int16)
     
@@ -324,6 +332,13 @@ class Environment(BaseEnvironment):
             else:
                 self.outcome_arr = np.zeros(self.n_people, dtype=np.float32)
                 self.obs_arr = np.frombuffer(self._recv((N_GLOBAL_FEATURES + N_LOCAL_FEATURES * 32 * 32) * 4), dtype=np.float32)
+                
+                # ami = self.obs_arr.argmin()
+                # ama = self.obs_arr.argmax()
+                # print("min:", np.unravel_index(ami, self.obs_arr.shape), self.obs_arr.ravel()[ami])
+                # print("max:", np.unravel_index(ama, self.obs_arr.shape), self.obs_arr.ravel()[ama])
+
+                assert (self.obs_arr == self.obs_arr).all()
                 self.human_positions = np.frombuffer(self._recv((10 * 2) * 4), dtype=np.int32).reshape(10, 2)
                 self.legal_actions_arr = np.frombuffer(self._recv(self.n_people * 2), dtype=np.int16)
         except Exception as e:
@@ -360,7 +375,7 @@ class Environment(BaseEnvironment):
             return []
     
     def observation(self, player):
-        return np.concatenate([self.obs_arr, self.human_positions[player].astype(np.float32)])
+        return np.concatenate([self.obs_arr, self.human_positions[player].astype(np.float32)])#[None]
     
     def net(self):
         return Model()

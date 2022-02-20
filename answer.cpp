@@ -1989,7 +1989,8 @@ void ExtractFeatures() {
         g[idx_g++] = f::log_remaining_turns / log(300.0);
 
         // 人の位置
-        Vec2<int> sum_human_positions, sum_squared_human_positions;
+        auto sum_human_positions = Vec2<int>();
+        auto sum_squared_human_positions = Vec2<int>();
         auto sum_human_yx = 0;
         rep(i, common::M) {
             const auto& p = common::human_positions[i];
@@ -2010,7 +2011,8 @@ void ExtractFeatures() {
         g[idx_g++] = f::human_yx_corr;
 
         // ペットの位置
-        Vec2<int> sum_pet_positions, sum_squared_pet_positions;
+        auto sum_pet_positions = Vec2<int>();
+        auto sum_squared_pet_positions = Vec2<int>();
         auto sum_pet_yx = 0;
         rep(i, common::M) {
             const auto& p = common::pet_positions[i];
@@ -2019,11 +2021,11 @@ void ExtractFeatures() {
             sum_squared_pet_positions.x += p.x * p.x;
             sum_pet_yx += p.y * p.x;
         }
-        f::pet_y_mean = (double)sum_pet_positions.y / (double)common::M;
-        f::pet_x_mean = (double)sum_pet_positions.x / (double)common::M;
-        f::pet_y_std = sqrt((double)sum_squared_pet_positions.y / (double)common::M - f::pet_y_mean * f::pet_y_mean);
-        f::pet_x_std = sqrt((double)sum_squared_pet_positions.x / (double)common::M - f::pet_x_mean * f::pet_x_mean);
-        f::pet_yx_corr = ((double)sum_pet_yx / (double)common::M - f::pet_y_mean * f::pet_x_mean) / (f::pet_y_std * f::pet_x_std);
+        f::pet_y_mean = (double)sum_pet_positions.y / (double)common::N;
+        f::pet_x_mean = (double)sum_pet_positions.x / (double)common::N;
+        f::pet_y_std = sqrt((double)sum_squared_pet_positions.y / (double)common::N - f::pet_y_mean * f::pet_y_mean);
+        f::pet_x_std = sqrt((double)sum_squared_pet_positions.x / (double)common::N - f::pet_x_mean * f::pet_x_mean);
+        f::pet_yx_corr = ((double)sum_pet_yx / (double)common::N - f::pet_y_mean * f::pet_x_mean) / (f::pet_y_std * f::pet_x_std);
         g[idx_g++] = (f::pet_y_mean - 15.5) * (1.0 / 14.5);
         g[idx_g++] = (f::pet_x_mean - 15.5) * (1.0 / 14.5);
         g[idx_g++] = f::pet_y_std * (1.0 / 14.5);
@@ -2281,7 +2283,7 @@ void ExtractFeatures() {
         l[idx_l].Fill(0);
         rep(i, common::M) {
             const auto& v = common::human_positions[i];
-            l[idx_l][v.y][v.x] = features::area_each_human[i];
+            l[idx_l][v.y][v.x] = features::area_each_human[i] * (1.0 / 900.0);
         }
         idx_l++;
 
