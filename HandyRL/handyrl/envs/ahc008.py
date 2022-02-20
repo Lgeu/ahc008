@@ -2,6 +2,7 @@ import sys
 import math
 import random
 import socket
+import traceback
 from threading import Thread, local
 from subprocess import Popen, PIPE, STDOUT
 
@@ -173,7 +174,7 @@ class Model(nn.Module):
         self.decoder_blocks.append(MBConvBlock(kernel_size=3, stride=1, expand_ratio=expand_ratio, input_filters=dim1, output_filters=dim1, image_size=image_size))
         self.decoder_blocks.append(MBConvBlock(kernel_size=3, stride=1, expand_ratio=expand_ratio, input_filters=dim1, output_filters=out_dims, image_size=image_size))
 
-    def forward(self, features, **kwargs):
+    def forward(self, features, *args, **kwargs):
         batch_size = features.size(0)
         global_features = features[:, :N_GLOBAL_FEATURES]
         local_features = features[:, N_GLOBAL_FEATURES:-2].reshape(batch_size, N_LOCAL_FEATURES, 32, 32)
@@ -296,7 +297,6 @@ class Environment(BaseEnvironment):
     def reset(self, args=None):
         if self.p_game is not None:
             self.p_game.kill()
-        # TODO: ランダムシード
         self.error = False
         seed = random.randint(0, 999)
         cmd = f"../tools/target/release/tester ../env.out {self.port} < ../tools/in/{seed:04d}.txt"
@@ -312,9 +312,8 @@ class Environment(BaseEnvironment):
     def step(self, actions):
         try:
             arr = []
-            for player_id, action in sorted(actions.items()):  # type: (int, int)
-                # player_id: int
-                arr.append(action)
+            for player_id in self.turns():
+                arr.append(actions.get(player_id, 8))
             arr = np.array(arr, dtype=np.int8)
             self._send(arr.tobytes())
             self.current_turn += 1
@@ -330,6 +329,7 @@ class Environment(BaseEnvironment):
         except Exception as e:
             print("[Error] error occured!")
             print(e)
+            print(traceback.format_exc())
             self.error = True
 
     def terminal(self):

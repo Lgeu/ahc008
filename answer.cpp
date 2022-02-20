@@ -1925,7 +1925,7 @@ void Compute(const Vec2<i8>& start) {
     n_pets_in_subtree.Fill(0);
     n_human_in_subtree.Fill(0);
     Dfs(start, {-1, -1});
-    cout << "# subtree_size=" << subtree_size[start] << endl;
+    // cout << "# subtree_size=" << subtree_size[start] << endl;
     assert(subtree_size[start] == features::max_area);
     assert(n_pets_in_subtree[start] == features::sum_n_remaining_pet);
     assert(n_human_in_subtree[start] == features::n_surviving_human);
