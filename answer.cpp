@@ -2396,7 +2396,7 @@ void ComputeReward() {
         new_cumulative_log_reward[idx_human] = (log2((1.0 / 900.0) * area) - n) / (double)common::N + 1.0;
 
         // あああああああああ
-        if (features::distances_from_each_human[features::max_area_human][common::human_positions[idx_human]] != 999) {
+        if (features::distances_from_each_human[features::max_area_human][common::human_positions[idx_human]] != 999 && features::max_area >= 10) {
             reward[idx_human] += 0.1;
         }
         for (const auto& d : DIRECTION_VECS) {
