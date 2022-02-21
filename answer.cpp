@@ -1816,6 +1816,7 @@ auto sum_n_remaining_pet = 0; // これは使わない
 auto n_remaining_pet_each_type = array<int, 5>();
 auto n_surviving_human = 0;
 auto diff_odd_even_dog_cat = 0;
+auto max_area_human = 0;
 
 // local features
 // auto human_counts = Board<i8, 32, 32>();
@@ -1961,6 +1962,13 @@ void PreComputeFeatures() {
     };
     rep(i, common::M) { f::area_each_human[i] = bfs(common::fence_board, common::human_positions[i], f::distances_from_each_human[i]); }
     rep(i, common::N) { f::area_each_pet[i] = bfs(common::fence_board, common::pet_positions[i], f::distances_from_each_pet[i]); }
+
+    f::max_area = 0;
+    rep(i, common::M) {
+        if (chmax(f::max_area, f::area_each_human[i])) {
+            f::max_area_human = i;
+        }
+    }
 }
 
 void ExtractFeatures() {
@@ -1970,7 +1978,7 @@ void ExtractFeatures() {
     auto& l = f::observation_local;
     auto idx_g = 0, idx_l = 0;
 
-    auto max_area_human = 0;
+    using f::max_area_human;
 
     // --- global ---
     {
@@ -2043,12 +2051,6 @@ void ExtractFeatures() {
         g[idx_g++] = min(f::n_fences_per_turn, 3.0);
 
         // 最大面積
-        f::max_area = 0;
-        rep(i, common::M) {
-            if (chmax(f::max_area, f::area_each_human[i])) {
-                max_area_human = i;
-            }
-        }
         g[idx_g++] = f::max_area * (1.0 / 900.0);
 
         // 各ペットの残り数 (最大エリアの人と違うところに居たら捕まえたと考える)
@@ -2393,6 +2395,11 @@ void ComputeReward() {
         reward[idx_human] = (new_cumulative_linear_reward[idx_human] - cumulative_linear_reward[idx_human]) * (1.0 - rl::log_reward_ratio) +
                             (new_cumulative_log_reward[idx_human] - cumulative_log_reward[idx_human]) * rl::log_reward_ratio;
         reward[idx_human] *= reward_coef;
+
+        // あああああああああ
+        if (features::distances_from_each_human[features::max_area_human][common::human_positions[idx_human]] != 999) {
+            reward[idx_human] += 0.01;
+        }
     }
     cumulative_linear_reward = new_cumulative_linear_reward;
     cumulative_log_reward = new_cumulative_log_reward;

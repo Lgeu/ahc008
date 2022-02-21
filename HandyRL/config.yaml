@@ -20,10 +20,10 @@ train_args:
     minimum_episodes: 16
     maximum_episodes: 16
     epochs: -1
-    num_batchers: 2
+    num_batchers: 4
     eval_rate: 0.1
     worker:
-        num_parallel: 6
+        num_parallel: 4
     lambda: 0.7
     policy_target: 'TD' # 'UPGO' 'VTRACE' 'TD' 'MC'
     value_target: 'TD' # 'VTRACE' 'TD' 'MC'
@@ -34,6 +34,6 @@ train_args:
 
 
 worker_args:
-    server_address: ''
-    num_parallel: 8
+    server_address: '35.192.152.246'
+    num_parallel: 7
 
