@@ -2329,7 +2329,7 @@ auto cumulative_log_reward = array<float, 10>();
 auto linear_outcome = array<float, 10>();
 auto log_outcome = array<float, 10>();
 auto outcome = array<float, 10>();
-auto reward_coef = 1.0;
+auto reward_coef = 5.0;
 
 } // namespace rl
 
@@ -2383,6 +2383,7 @@ void ComputeReward() {
     cout << "#reward=";
     rep(idx_human, common::M) {
         auto n = (double)common::N;
+        reward[idx_human] = 0.0;
         rep(i, common::N) {
             if (features::distances_from_each_human[idx_human][common::pet_positions[i]] == 999) {
                 n--;
@@ -2393,20 +2394,21 @@ void ComputeReward() {
         const auto& area = features::area_each_human[idx_human];
         new_cumulative_linear_reward[idx_human] = (1.0 / 900.0) * area * exp2(-n);
         new_cumulative_log_reward[idx_human] = (log2((1.0 / 900.0) * area) - n) / (double)common::N + 1.0;
-        reward[idx_human] = (new_cumulative_linear_reward[idx_human] - cumulative_linear_reward[idx_human]) * (1.0 - rl::log_reward_ratio) +
-                            (new_cumulative_log_reward[idx_human] - cumulative_log_reward[idx_human]) * rl::log_reward_ratio;
-        reward[idx_human] *= reward_coef;
 
         // あああああああああ
         if (features::distances_from_each_human[features::max_area_human][common::human_positions[idx_human]] != 999) {
-            reward[idx_human] += 0.04;
+            reward[idx_human] += 0.1;
         }
         for (const auto& d : DIRECTION_VECS) {
             if (!common::fence_board[common::human_positions[idx_human] + d])
                 goto ok;
         }
-        reward[idx_human] -= 0.2;
+        new_cumulative_linear_reward[idx_human] -= 2.0;
     ok:;
+
+        reward[idx_human] += (new_cumulative_linear_reward[idx_human] - cumulative_linear_reward[idx_human]) * (1.0 - rl::log_reward_ratio) +
+                             (new_cumulative_log_reward[idx_human] - cumulative_log_reward[idx_human]) * rl::log_reward_ratio;
+        reward[idx_human] *= reward_coef;
         cout << reward[idx_human] << ",";
     }
     cout << endl;
