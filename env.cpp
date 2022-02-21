@@ -77,12 +77,12 @@ void MakeEnvironment() {
         }
         // Predict();
         UpdateHuman();
+        PreComputeFeatures();
         ComputeReward();
         rep(i, common::M) { Send((float)rl::reward[i]); }
         if (common::current_turn == 299)
             break;
         Interact();
-        PreComputeFeatures();
         UpdatePets();
         common::current_turn++;
     }
