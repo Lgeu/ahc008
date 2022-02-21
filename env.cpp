@@ -69,9 +69,7 @@ void MakeEnvironment() {
         Send(features::observation_local);
         Send(common::human_positions);
         ComputeLegalActions();
-        rep(i, common::M) {
-            Send((short)common::legal_actions[i]); // TODO
-        }
+        rep(i, common::M) { Send((short)common::legal_actions[i]); }
         rep(i, common::M) {
             auto action = (i8)8;
             Recv(action);
@@ -80,9 +78,7 @@ void MakeEnvironment() {
         // Predict();
         UpdateHuman();
         ComputeReward();
-        rep(i, common::M) {
-            Send((float)rl::reward[i]); // TODO
-        }
+        rep(i, common::M) { Send((float)rl::reward[i]); }
         if (common::current_turn == 299)
             break;
         Interact();
@@ -91,9 +87,7 @@ void MakeEnvironment() {
         common::current_turn++;
     }
     ComputeOutcome();
-    rep(i, common::M) {
-        Send((float)rl::outcome[i]); // TODO
-    }
+    rep(i, common::M) { Send((float)rl::outcome[i]); }
     Interact();
 }
 

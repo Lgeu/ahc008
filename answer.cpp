@@ -2380,6 +2380,7 @@ void ComputeReward() {
 
     auto new_cumulative_linear_reward = array<float, 10>();
     auto new_cumulative_log_reward = array<float, 10>();
+    cout << "#reward=";
     rep(idx_human, common::M) {
         auto n = (double)common::N;
         rep(i, common::N) {
@@ -2398,15 +2399,17 @@ void ComputeReward() {
 
         // あああああああああ
         if (features::distances_from_each_human[features::max_area_human][common::human_positions[idx_human]] != 999) {
-            reward[idx_human] += 0.01;
+            reward[idx_human] += 0.04;
         }
         for (const auto& d : DIRECTION_VECS) {
             if (!common::fence_board[common::human_positions[idx_human] + d])
                 goto ok;
         }
-        reward[idx_human] -= 0.05;
+        reward[idx_human] -= 0.2;
     ok:;
+        cout << reward[idx_human] << ",";
     }
+    cout << endl;
     cumulative_linear_reward = new_cumulative_linear_reward;
     cumulative_log_reward = new_cumulative_log_reward;
 }
