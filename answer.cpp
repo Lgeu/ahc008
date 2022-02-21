@@ -2329,7 +2329,7 @@ auto cumulative_log_reward = array<float, 10>();
 auto linear_outcome = array<float, 10>();
 auto log_outcome = array<float, 10>();
 auto outcome = array<float, 10>();
-auto reward_coef = 10.0;
+auto reward_coef = 100.0;
 
 } // namespace rl
 
