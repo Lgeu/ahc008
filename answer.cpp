@@ -2397,13 +2397,13 @@ void ComputeReward() {
 
         // あああああああああ
         if (features::distances_from_each_human[features::max_area_human][common::human_positions[idx_human]] != 999 && features::max_area >= 10) {
-            reward[idx_human] += 0.05;
+            reward[idx_human] += 0.01;
         }
         for (const auto& d : DIRECTION_VECS) {
             if (!common::fence_board[common::human_positions[idx_human] + d])
                 goto ok;
         }
-        new_cumulative_linear_reward[idx_human] -= 1.0;
+        new_cumulative_linear_reward[idx_human] -= 0.2;
     ok:;
 
         reward[idx_human] += (new_cumulative_linear_reward[idx_human] - cumulative_linear_reward[idx_human]) * (1.0 - rl::log_reward_ratio) +
