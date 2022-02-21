@@ -2400,6 +2400,12 @@ void ComputeReward() {
         if (features::distances_from_each_human[features::max_area_human][common::human_positions[idx_human]] != 999) {
             reward[idx_human] += 0.01;
         }
+        for (const auto& d : DIRECTION_VECS) {
+            if (!common::fence_board[common::human_positions[idx_human] + d])
+                goto ok;
+        }
+        reward[idx_human] -= 0.05;
+    ok:;
     }
     cumulative_linear_reward = new_cumulative_linear_reward;
     cumulative_log_reward = new_cumulative_log_reward;
