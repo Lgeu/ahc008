@@ -9,7 +9,7 @@ env_args:
 train_args:
     turn_based_training: False
     observation: False
-    gamma: 0.5
+    gamma: 0.7
     forward_steps: 16
     burn_in_steps: 0  # for RNNs
     compress_steps: 4
@@ -24,7 +24,7 @@ train_args:
     eval_rate: 0.1
     worker:
         num_parallel: 4
-    lambda: 0.4
+    lambda: 0.6
     policy_target: 'TD' # 'UPGO' 'VTRACE' 'TD' 'MC'
     value_target: 'TD' # 'VTRACE' 'TD' 'MC'
     eval:

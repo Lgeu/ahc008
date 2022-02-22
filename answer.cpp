@@ -2322,14 +2322,14 @@ void ComputeLegalActions() {
 
 namespace rl {
 
-auto log_reward_ratio = 0.4;
+auto log_reward_ratio = 0.6;
 auto reward = array<float, 10>();
 auto cumulative_linear_reward = array<float, 10>();
 auto cumulative_log_reward = array<float, 10>();
 auto linear_outcome = array<float, 10>();
 auto log_outcome = array<float, 10>();
 auto outcome = array<float, 10>();
-auto reward_coef = 100.0;
+auto reward_coef = 200.0;
 
 } // namespace rl
 
@@ -2396,14 +2396,11 @@ void ComputeReward() {
         new_cumulative_log_reward[idx_human] = (log2((1.0 / 900.0) * area) - n) / (double)common::N + 1.0;
 
         // あああああああああ
-        if (features::distances_from_each_human[features::max_area_human][common::human_positions[idx_human]] != 999 && features::max_area >= 10) {
+        if (features::distances_from_each_human[features::max_area_human][common::human_positions[idx_human]] != 999 && features::max_area >= 100) {
             reward[idx_human] += 0.01;
+        } else {
+            new_cumulative_linear_reward[idx_human] -= 1.0;
         }
-        for (const auto& d : DIRECTION_VECS) {
-            if (!common::fence_board[common::human_positions[idx_human] + d])
-                goto ok;
-        }
-        new_cumulative_linear_reward[idx_human] -= 0.2;
     ok:;
 
         reward[idx_human] += (new_cumulative_linear_reward[idx_human] - cumulative_linear_reward[idx_human]) * (1.0 - rl::log_reward_ratio) +
