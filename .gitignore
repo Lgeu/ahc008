@@ -4,4 +4,3 @@
 /tools/*/*/*.*
 /tools/target/*
 __pycache__
-/out/*.txt

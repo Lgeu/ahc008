@@ -213,165 +213,6 @@ template <class T, int height, int width> struct Board {
     }
 };
 
-// スタック  // コンストラクタ呼ぶタイミングとかが考えられてなくて良くない
-template <class T, int max_size> struct Stack {
-    array<T, max_size> data;
-    int right;
-    inline Stack() : data(), right(0) {}
-    inline Stack(const int n) : data(), right(0) { resize(n); }
-    inline Stack(const int n, const T& val) : data(), right(0) { resize(n, val); }
-    inline Stack(const initializer_list<T>& init) : data(), right(init.size()) {
-        memcpy(&data[0], init.begin(), sizeof(T) * init.size());
-    }                                                           // これ大丈夫か？
-    inline Stack(const Stack& rhs) : data(), right(rhs.right) { // コピー
-        for (int i = 0; i < right; i++) {
-            data[i] = rhs.data[i];
-        }
-    }
-    template <class S> inline Stack(const Stack<S, max_size>& rhs) : data(), right(rhs.right) {
-        for (int i = 0; i < right; i++) {
-            data[i] = rhs.data[i];
-        }
-    }
-    template <class Container> Stack& operator=(const Container& rhs) {
-        right = rhs.size();
-        ASSERT(right <= max_size, "Too big container.");
-        for (int i = 0; i < right; i++) {
-            data[i] = rhs.data[i];
-        }
-        return *this;
-    }
-    Stack& operator=(Stack&&) = default;
-    inline bool empty() const { return 0 == right; }
-    inline void push(const T& value) {
-        ASSERT_RANGE(right, 0, max_size);
-        data[right] = value;
-        right++;
-    }
-    inline T pop() {
-        right--;
-        ASSERT_RANGE(right, 0, max_size);
-        return data[right];
-    }
-    const inline T& top() const { return data[right - 1]; }
-    template <class... Args> inline void emplace(const Args&... args) {
-        ASSERT_RANGE(right, 0, max_size);
-        data[right] = T(args...);
-        right++;
-    }
-    inline void clear() { right = 0; }
-    inline void insert(const int& idx, const T& value) {
-        ASSERT_RANGE(idx, 0, right + 1);
-        ASSERT_RANGE(right, 0, max_size);
-        int i = right;
-        right++;
-        while (i != idx) {
-            data[i] = data[i - 1];
-            i--;
-        }
-        data[idx] = value;
-    }
-    inline void del(const int& idx) {
-        ASSERT_RANGE(idx, 0, right);
-        right--;
-        for (int i = idx; i < right; i++) {
-            data[i] = data[i + 1];
-        }
-    }
-    inline int index(const T& value) const {
-        for (int i = 0; i < right; i++) {
-            if (value == data[i])
-                return i;
-        }
-        return -1;
-    }
-    inline void remove(const T& value) {
-        int idx = index(value);
-        ASSERT(idx != -1, "not contain the value.");
-        del(idx);
-    }
-    inline void resize(const int& sz) {
-        ASSERT_RANGE(sz, 0, max_size + 1);
-        for (; right < sz; right++) {
-            data[right].~T();
-            new (&data[right]) T();
-        }
-        right = sz;
-    }
-    inline void resize(const int& sz, const T& fill_value) {
-        ASSERT_RANGE(sz, 0, max_size + 1);
-        for (; right < sz; right++) {
-            data[right].~T();
-            new (&data[right]) T(fill_value);
-        }
-        right = sz;
-    }
-    inline int size() const { return right; }
-    inline T& operator[](const int n) {
-        ASSERT_RANGE(n, 0, right);
-        return data[n];
-    }
-    inline const T& operator[](const int n) const {
-        ASSERT_RANGE(n, 0, right);
-        return data[n];
-    }
-    inline T* begin() { return (T*)data.data(); }
-    inline const T* begin() const { return (const T*)data.data(); }
-    inline T* end() { return (T*)data.data() + right; }
-    inline const T* end() const { return (const T*)data.data() + right; }
-    inline T& front() {
-        ASSERT(right > 0, "no data.");
-        return data[0];
-    }
-    const inline T& front() const {
-        ASSERT(right > 0, "no data.");
-        return data[0];
-    }
-    inline T& back() {
-        ASSERT(right > 0, "no data.");
-        return data[right - 1];
-    }
-    const inline T& back() const {
-        ASSERT(right > 0, "no data.");
-        return data[right - 1];
-    }
-    inline bool contains(const T& value) const {
-        for (const auto& dat : *this) {
-            if (value == dat)
-                return true;
-        }
-        return false;
-    }
-    inline vector<T> ToVector() { return vector<T>(begin(), end()); }
-    inline void Print(ostream& os = cout) {
-        for (int i = 0; i < right; i++) {
-            os << data[i] << (i == right - 1 ? "" : " ");
-        }
-        os << endl;
-    }
-};
-
-template <class T, int size = 0x100000, class KeyType = unsigned> struct MinimumHashMap {
-    // ハッシュの値が size 以下
-    array<T, size> data;
-    Stack<int, size> used;
-    constexpr static KeyType mask = size - 1;
-    inline MinimumHashMap() {
-        static_assert((size & size - 1) == 0, "not pow of 2");
-        memset(&data[0], (unsigned char)-1, sizeof(data));
-    }
-    inline T& operator[](const KeyType& key) {
-        if (data[key] == (T)-1)
-            used.push(key);
-        return data[key];
-    }
-    inline void clear() {
-        for (const auto& key : used)
-            data[key] = (T)-1;
-        used.right = 0;
-    }
-};
-
 // 時間 (秒)
 inline double time() {
     return static_cast<double>(chrono::duration_cast<chrono::nanoseconds>(chrono::steady_clock::now().time_since_epoch()).count()) * 1e-9;
@@ -680,16 +521,95 @@ void MakeAction() {
             NONE,
             MOVING_FOR_SETTING,
             SETTING,
+            MOVING,
             WAITING,
         };
         Type type;
         bool setting_left_to_right;
         Vec2<i8> moving_target_position;
         Vec2<i8> setting_target_position;
+        i8 assigned_hub;
     };
     static auto human_states = array<HumanState, 10>();
+    static auto hub_assignments = array<i8, 9>{-1, -1, -1, -1, -1, -1, -1, -1, -1};
 
+    // clang-format off
+    static constexpr auto cell_ids = Board<i8, 32, 32>{
+        99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,
+        99,99, 2, 2, 2, 2,99, 3, 3, 3, 3,99, 4, 4, 4, 4,99, 5, 5, 5, 5,99, 6, 6, 6, 6,99, 7, 7, 7, 7,99,
+        99, 1,99, 2, 2, 2,99, 3, 3, 3,99,24,99, 4, 4, 4,99, 5, 5, 5,99,26,99, 6, 6, 6,99, 7, 7, 7,99,99,
+        99, 1, 1,99, 2, 2,99, 3, 3,99,24,24,24,99, 4, 4,99, 5, 5,99,26,26,26,99, 6, 6,99, 7, 7,99, 8,99,
+        99, 1, 1, 1,99,-1,-1,-1,99,24,24,24,24,24,99,-2,-2,-2,99,26,26,26,26,26,99,-3,-3,-3,99, 8, 8,99,
+        99, 1, 1, 1,-1,-1,-1,-1,-1,24,24,24,24,24,-2,-2,-2,-2,-2,26,26,26,26,26,-3,-3,-3,-3,-3, 8, 8,99,
+        99,99,99,99,-1,-1,-1,-1,-1,99,99,99,99,99,-2,-2,-2,-2,-2,99,99,99,99,99,-3,-3,-3,-3,-3,99,99,99,
+        99, 0, 0, 0,-1,-1,-1,-1,-1,25,25,25,25,25,-2,-2,-2,-2,-2,27,27,27,27,27,-3,-3,-3,-3,-3, 9, 9,99,
+        99, 0, 0, 0,99,-1,-1,-1,99,25,25,25,25,25,99,-2,-2,-2,99,27,27,27,27,27,99,-3,-3,-3,99, 9, 9,99,
+        99, 0, 0,99,38,38,99,39,39,99,25,25,25,99,40,40,99,41,41,99,27,27,27,99,29,29,99,28,28,99, 9,99,
+        99, 0,99,38,38,38,99,39,39,39,99,25,99,40,40,40,99,41,41,41,99,27,99,29,29,29,99,28,28,28,99,99,
+        99,99,38,38,38,38,99,39,39,39,39,99,40,40,40,40,99,41,41,41,41,99,29,29,29,29,99,28,28,28,28,99,
+        99,23,99,38,38,38,99,39,39,39,99,47,99,40,40,40,99,41,41,41,99,42,99,29,29,29,99,28,28,28,99,99,
+        99,23,23,99,38,38,99,39,39,99,47,47,47,99,40,40,99,41,41,99,42,42,42,99,29,29,99,28,28,99,10,99,
+        99,23,23,23,99,-4,-4,-4,99,47,47,47,47,47,99,-5,-5,-5,99,42,42,42,42,42,99,-6,-6,-6,99,10,10,99,
+        99,23,23,23,-4,-4,-4,-4,-4,47,47,47,47,47,-5,-5,-5,-5,-5,42,42,42,42,42,-6,-6,-6,-6,-6,10,10,99,
+        99,99,99,99,-4,-4,-4,-4,-4,99,99,99,99,99,-5,-5,-5,-5,-5,99,99,99,99,99,-6,-6,-6,-6,-6,99,99,99,
+        99,22,22,22,-4,-4,-4,-4,-4,46,46,46,46,46,-5,-5,-5,-5,-5,43,43,43,43,43,-6,-6,-6,-6,-6,11,11,99,
+        99,22,22,22,99,-4,-4,-4,99,46,46,46,46,46,99,-5,-5,-5,99,43,43,43,43,43,99,-6,-6,-6,99,11,11,99,
+        99,22,22,99,36,36,99,37,37,99,46,46,46,99,45,45,99,44,44,99,43,43,43,99,31,31,99,30,30,99,11,99,
+        99,22,99,36,36,36,99,37,37,37,99,46,99,45,45,45,99,44,44,44,99,43,99,31,31,31,99,30,30,30,99,99,
+        99,99,36,36,36,36,99,37,37,37,37,99,45,45,45,45,99,44,44,44,44,99,31,31,31,31,99,30,30,30,30,99,
+        99,21,99,36,36,36,99,37,37,37,99,35,99,45,45,45,99,44,44,44,99,33,99,31,31,31,99,30,30,30,99,99,
+        99,21,21,99,36,36,99,37,37,99,35,35,35,99,45,45,99,44,44,99,33,33,33,99,31,31,99,30,30,99,12,99,
+        99,21,21,21,99,-7,-7,-7,99,35,35,35,35,35,99,-8,-8,-8,99,33,33,33,33,33,99,-9,-9,-9,99,12,12,99,
+        99,21,21,21,-7,-7,-7,-7,-7,35,35,35,35,35,-8,-8,-8,-8,-8,33,33,33,33,33,-9,-9,-9,-9,-9,12,12,99,
+        99,99,99,99,-7,-7,-7,-7,-7,99,99,99,99,99,-8,-8,-8,-8,-8,99,99,99,99,99,-9,-9,-9,-9,-9,99,99,99,
+        99,20,20,20,-7,-7,-7,-7,-7,34,34,34,34,34,-8,-8,-8,-8,-8,32,32,32,32,32,-9,-9,-9,-9,-9,13,13,99,
+        99,20,20,20,99,-7,-7,-7,99,34,34,34,34,34,99,-8,-8,-8,99,32,32,32,32,32,99,-9,-9,-9,99,13,13,99,
+        99,20,20,99,19,19,99,18,18,99,34,34,34,99,17,17,99,16,16,99,32,32,32,99,15,15,99,14,14,99,13,99,
+        99,20,99,19,19,19,99,18,18,18,99,34,99,17,17,17,99,16,16,16,99,32,99,15,15,15,99,14,14,14,99,99,
+        99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,
+    };
+    static constexpr auto cell_id_to_hub_ids = array<array<i8, 2>, 48>{ array<i8, 2>
+        {0}, {0}, {0}, {0}, // 0-
+        {1}, {1},
+        {2}, {2}, {2}, {2},
+        {5}, {5},
+        {8}, {8}, {8}, {8},
+        {7}, {7},
+        {6}, {6}, {6}, {6},
+        {3}, {3},
+        {0, 1}, {0, 1}, // 24-
+        {1, 2}, {1, 2},
+        {2, 5}, {2, 5},
+        {5, 8}, {5, 8},
+        {8, 7}, {8, 7},
+        {7, 6}, {7, 6},
+        {6, 3}, {6, 3},
+        {3, 0}, {3, 0},
+        {4, 1}, {4, 1}, // 40-
+        {4, 5}, {4, 5},
+        {4, 7}, {4, 7},
+        {4, 3}, {4, 3},
+    };
+    // clang-format on
+    static constexpr auto hub_centers = array<Vec2<i8>, 9>{
+        Vec2<i8>{6, 6}, {6, 16}, {6, 26}, {16, 6}, {16, 16}, {16, 26}, {26, 6}, {26, 16}, {26, 26},
+    };
     rep(idx_human, common::M) {
+        if (human_states[idx_human].type == HumanState::Type::MOVING) {
+            human_states[idx_human].type = HumanState::Type::NONE;
+            hub_assignments[human_states[idx_human].assigned_hub] = -1;
+            human_states[idx_human].assigned_hub = -1;
+        } else if (human_states[idx_human].type == HumanState::Type::WAITING) {
+            rep(i, common::N) {
+                if (features::distances_from_each_human[idx_human][common::pet_positions[i]] <= 12) {
+                    goto ok;
+                }
+            }
+            human_states[idx_human].type = HumanState::Type::NONE;
+            hub_assignments[human_states[idx_human].assigned_hub] = -1;
+            human_states[idx_human].assigned_hub = -1;
+        ok:;
+        }
         if (human_states[idx_human].type == HumanState::Type::NONE) {
             auto best_assignment = -1;
             auto best_assignment_direction_is_right = false;
@@ -718,12 +638,55 @@ void MakeAction() {
                 }
                 continue;
             }
-        setting:;
+            // 今居る位置に意味がないなら自由になる
+            // 自由なら、最も近い、意味のある、ほかに人の居ない位置に移動
+            // 自由でないなら、閉じ込め作業
+            // 閉じ込めは、両側とも準備ができている中で近いものを最優先、次に準備ができている遠いもの
+            auto best_hub = -1;
+            auto best_hub_distance = 999;
+            rep(i, common::N) {
+                const auto& pet_pos = common::pet_positions[i];
+                if (features::distances_from_each_human[idx_human][pet_pos] == 999)
+                    continue;
+                const auto& pet_cell = cell_ids[pet_pos];
+                if (pet_cell < 0) {
+                    const auto hub = ~pet_cell;
+                    if (hub_assignments[hub] == -1) {
+                        if (chmin(best_hub_distance, features::distances_from_each_human[idx_human][hub_centers[hub]]))
+                            best_hub = hub;
+                    }
+                } else if (pet_cell < 24) {
+                    const auto& hub = cell_id_to_hub_ids[pet_cell][0];
+                    if (hub_assignments[hub] == -1) {
+                        if (chmin(best_hub_distance, features::distances_from_each_human[idx_human][hub_centers[hub]]))
+                            best_hub = hub;
+                    }
+                } else {
+                    rep(idx_hubs, 2) {
+                        const auto& hub = cell_id_to_hub_ids[pet_cell][idx_hubs];
+                        if (hub_assignments[hub] == -1) {
+                            if (chmin(best_hub_distance, features::distances_from_each_human[idx_human][hub_centers[hub]]))
+                                best_hub = hub;
+                        }
+                    }
+                }
+            }
+            if (best_hub != -1) {
+                hub_assignments[best_hub] = idx_human;
+                human_states[idx_human].moving_target_position = hub_centers[best_hub];
+                human_states[idx_human].assigned_hub = best_hub;
+                if (best_hub_distance <= 2) {
+                    human_states[idx_human].type = HumanState::Type::WAITING;
+                } else {
+                    human_states[idx_human].type = HumanState::Type::MOVING;
+                }
+            }
         }
     }
 
-    rep(idx_human, 9) {
+    // ここに WAITING 同士の通信？
 
+    rep(idx_human, 9) {
         if (human_states[idx_human].type == HumanState::Type::MOVING_FOR_SETTING) {
             // ================================================ 1. 移動 ================================================
             static auto distance_board = Board<short, 32, 32>();
@@ -764,7 +727,22 @@ void MakeAction() {
                     human_states[idx_human].type = HumanState::Type::NONE;
                 }
             }
-        ok:;
+        } else if (human_states[idx_human].type == HumanState::Type::MOVING) {
+            // ================================================ 3. 移動 ================================================
+            static auto distance_board = Board<short, 32, 32>();
+            const auto& target_position = human_states[idx_human].moving_target_position;
+            bfs(common::fence_board, target_position, distance_board);
+            rep(i, 4) {
+                const auto& v = common::human_positions[idx_human];
+                const auto u = v + DIRECTION_VECS[i];
+                if (distance_board[u] < distance_board[v]) {
+                    human_moves[idx_human] = "UDLR"[i];
+                    next_human_positions[idx_human] = u;
+                }
+            }
+            if (distance_board[next_human_positions[idx_human]] == 2) {
+                human_states[idx_human].type = HumanState::Type::WAITING;
+            }
         }
     }
 }
