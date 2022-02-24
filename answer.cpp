@@ -402,6 +402,7 @@ int M; // 人間の数
 auto pet_types = array<PetType, 20>();
 auto pet_positions = array<Vec2<int>, 20>();
 auto human_positions = array<Vec2<int>, 10>();
+auto next_human_positions = array<Vec2<int>, 10>();
 
 struct PetMove {
     Vec2<i8> position;
@@ -422,7 +423,10 @@ auto pet_moves = array<string, 20>();
 auto elapsed_turn_after_dog_meets_human = array<int, 20>();
 auto dog_targeting_probability = Board<double, 20, 10>();
 
-auto legal_actions = array<short, 10>();
+constexpr auto starts_left = array<Vec2<i8>, 9>{Vec2<i8>{2, 1}, {5, 1}, {9, 2}, {12, 1}, {15, 1}, {19, 2}, {22, 1}, {25, 1}, {29, 2}};
+constexpr auto starts_right = array<Vec2<i8>, 9>{Vec2<i8>{2, 29}, {5, 30}, {9, 30}, {12, 29}, {15, 30}, {19, 30}, {22, 29}, {25, 30}, {29, 30}};
+auto distance_from_starts_left = array<Board<short, 32, 32>, 9>();
+auto distance_from_starts_right = array<Board<short, 32, 32>, 9>();
 
 } // namespace common
 
@@ -588,41 +592,181 @@ auto area_each_human = array<int, 10>();
 auto area_each_pet = array<int, 20>();
 } // namespace features
 
+auto bfs = [](const auto& board, const auto& start, auto& distances) {
+    distances.Fill(999);
+    auto q = array<Vec2<int>, 900>();
+    auto ql = &q[0];
+    auto qr = ql;
+    *qr = start;
+    qr++;
+    distances[start] = 0;
+    do {
+        const auto& v = *ql;
+        ql++;
+        for (const auto& d : DIRECTION_VECS) {
+            const auto u = v + d;
+            if (!board[u] && distances[u] == 999) {
+                distances[u] = distances[v] + 1;
+                *qr = u;
+                qr++;
+            }
+        }
+    } while (ql != qr);
+    return distance(&q[0], ql); // 面積を返す
+};
+
 void PreComputeFeatures() {
     // BFS
     namespace f = features;
-    auto bfs = [](const auto& board, const auto& start, auto& distances) {
-        distances.Fill(999);
-        auto q = array<Vec2<int>, 900>();
-        auto ql = &q[0];
-        auto qr = ql;
-        *qr = start;
-        qr++;
-        distances[start] = 0;
-        do {
-            const auto& v = *ql;
-            ql++;
-            for (const auto& d : DIRECTION_VECS) {
-                const auto u = v + d;
-                if (!board[u] && distances[u] == 999) {
-                    distances[u] = distances[v] + 1;
-                    *qr = u;
-                    qr++;
-                }
-            }
-        } while (ql != qr);
-        return distance(&q[0], ql); // 面積を返す
-    };
     rep(i, common::M) { f::area_each_human[i] = bfs(common::fence_board, common::human_positions[i], f::distances_from_each_human[i]); }
     rep(i, common::N) { f::area_each_pet[i] = bfs(common::fence_board, common::pet_positions[i], f::distances_from_each_pet[i]); }
+    rep(i, 9) {
+        bfs(common::fence_board, common::starts_left[i], common::distance_from_starts_left[i]);
+        bfs(common::fence_board, common::starts_right[i], common::distance_from_starts_right[i]);
+    }
 }
 
-void Predict() {
+inline bool Puttable(const Vec2<i8>& v) {
+    if (common::human_count_board[v])
+        return false;
+    if (common::pet_count_board[v])
+        return false;
+    for (const auto& d : DIRECTION_VECS) {
+        if (common::pet_count_board[v + d])
+            return false;
+    }
+    return true;
+}
+
+void MakeAction() {
     // 行動決定
     using common::human_moves;
-    // TODO
+    using common::next_human_positions;
+    using common::starts_left;
+    using common::starts_right;
+
+    next_human_positions = common::human_positions;
 
     rep(i, common::M) { human_moves[i] = '.'; }
+    // clang-format off
+    constexpr static auto pattern_unit = Board<bool, 10, 10>{
+        1, 0, 0, 0, 0, 1, 0, 0, 0, 0,
+        0, 1, 0, 0, 0, 1, 0, 0, 0, 1,
+        0, 0, 1, 0, 0, 1, 0, 0, 1, 0,
+        0, 0, 0, 1, 0, 0, 0, 1, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        1, 1, 1, 0, 0, 0, 0, 0, 1, 1,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 1, 0, 0, 0, 1, 0, 0,
+        0, 0, 1, 0, 0, 1, 0, 0, 1, 0,
+        0, 1, 0, 0, 0, 1, 0, 0, 0, 1,
+    };
+    // clang-format on
+    static auto pattern = Board<bool, 32, 32>();
+    if (common::current_turn == 0) {
+        rep(i, 32) {
+            pattern[{i, 0}] = 1;
+            pattern[{i, 31}] = 1;
+            pattern[{0, i}] = 1;
+            pattern[{31, i}] = 1;
+        }
+        rep(y, 10) rep(x, 10) rep(y2, 3) rep(x2, 3) pattern[{1 + y + y2 * 10, 1 + x + x2 * 10}] = pattern_unit[{y, x}];
+    }
+
+    // ================================================ 0. 行動割り当て ================================================
+    static auto setting_assignments = array<i8, 9>{-1, -1, -1, -1, -1, -1, -1, -1, -1};
+    struct HumanState {
+        enum struct Type {
+            NONE,
+            MOVING_FOR_SETTING,
+            SETTING,
+            WAITING,
+        };
+        Type type;
+        bool setting_left_to_right;
+        Vec2<i8> moving_target_position;
+        Vec2<i8> setting_target_position;
+    };
+    static auto human_states = array<HumanState, 10>();
+
+    rep(idx_human, common::M) {
+        if (human_states[idx_human].type == HumanState::Type::NONE) {
+            auto best_assignment = -1;
+            auto best_assignment_direction_is_right = false;
+            auto best_distance = 999;
+            rep(i, 9) {
+                if (setting_assignments[i] == -1) {
+                    if (chmin(best_distance, features::distances_from_each_human[idx_human][starts_left[i]])) {
+                        best_assignment = i;
+                        best_assignment_direction_is_right = true;
+                    }
+                    if (chmin(best_distance, features::distances_from_each_human[idx_human][starts_right[i]])) {
+                        best_assignment = i;
+                        best_assignment_direction_is_right = false;
+                    }
+                }
+            }
+            if (best_assignment != -1) {
+                setting_assignments[best_assignment] = idx_human;
+                human_states[idx_human].type = HumanState::Type::MOVING_FOR_SETTING;
+                human_states[idx_human].setting_left_to_right = best_assignment_direction_is_right;
+                human_states[idx_human].moving_target_position = (best_assignment_direction_is_right ? starts_left : starts_right)[best_assignment];
+                human_states[idx_human].setting_target_position = (best_assignment_direction_is_right ? starts_right : starts_left)[best_assignment];
+
+                if (best_distance == 0) {
+                    human_states[idx_human].type = HumanState::Type::SETTING;
+                }
+                continue;
+            }
+        setting:;
+        }
+    }
+
+    rep(idx_human, 9) {
+
+        if (human_states[idx_human].type == HumanState::Type::MOVING_FOR_SETTING) {
+            // ================================================ 1. 移動 ================================================
+            static auto distance_board = Board<short, 32, 32>();
+            const auto& target_position = human_states[idx_human].moving_target_position;
+            bfs(common::fence_board, target_position, distance_board);
+            rep(i, 4) {
+                const auto& v = common::human_positions[idx_human];
+                const auto u = v + DIRECTION_VECS[i];
+                if (distance_board[u] < distance_board[v]) {
+                    human_moves[idx_human] = "UDLR"[i];
+                    next_human_positions[idx_human] = u;
+                }
+            }
+            if (next_human_positions[idx_human] == target_position) {
+                human_states[idx_human].type = HumanState::Type::SETTING;
+            }
+        } else if (human_states[idx_human].type == HumanState::Type::SETTING) {
+            // ================================================ 2. 設置 ================================================
+            const auto& v = common::human_positions[idx_human];
+            const auto& l_to_r = human_states[idx_human].setting_left_to_right;
+            auto n_remaining_put_place = 0;
+            for (const auto& i : l_to_r ? array<int, 3>{0, 1, 2} : array<int, 3>{0, 1, 3}) {
+                const auto u = v + DIRECTION_VECS[i];
+                if (pattern[u] && !common::fence_board[u]) {
+                    n_remaining_put_place++;
+                    if (Puttable(u)) {
+                        human_moves[idx_human] = "udlr"[i];
+                    }
+                }
+            }
+            if (n_remaining_put_place == 0) {
+                // 移動
+                human_moves[idx_human] = l_to_r ? 'R' : 'L';
+                next_human_positions[idx_human] = common::human_positions[idx_human] + (l_to_r ? Vec2<i8>{0, 1} : Vec2<i8>{0, -1});
+            } else if (n_remaining_put_place == 1 && human_moves[idx_human] != '.') {
+                // 終了判定
+                if (common::human_positions[idx_human] == human_states[idx_human].setting_target_position) {
+                    human_states[idx_human].type = HumanState::Type::NONE;
+                }
+            }
+        ok:;
+        }
+    }
 }
 
 void Interact() {
@@ -640,7 +784,7 @@ void Solve() {
     Initialize();
     PreComputeFeatures();
     rep(_, 300) {
-        Predict();
+        MakeAction();
         UpdateHuman();
         Interact();
         PreComputeFeatures();

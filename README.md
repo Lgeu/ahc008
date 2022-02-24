@@ -103,3 +103,5 @@ cat config.yaml
 ```
 
 `python3 main.py --worker`
+
+`./tools/target/release/tester ./a.out < ./tools/in/0000.txt > "./out/$(date -Iseconds).txt"`
