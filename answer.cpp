@@ -835,6 +835,11 @@ void MakeAction() {
                     human_states[assigned_human].type = HumanState::Type::CATCHING;
                     caught[best_pet] = true;
                 }
+                // 他のペットも同時に閉じ込められる場合
+                rep(i, common::N) {
+                    if (cell_ids[common::pet_positions[i]] == cell)
+                        caught[i] = true;
+                }
             }
         }
     }
@@ -846,6 +851,12 @@ void MakeAction() {
     cout << endl;
     cout << "#assigned_hub=";
     rep(i, common::M) { cout << (int)human_states[i].assigned_hub << ","; }
+    cout << endl;
+    cout << "#moving_targetting_pos=";
+    rep(i, common::M) { cout << (int)human_states[i].moving_target_position.y << "," << (int)human_states[i].moving_target_position.x << "|"; }
+    cout << endl;
+    cout << "#setting_targetting_pos=";
+    rep(i, common::M) { cout << (int)human_states[i].setting_target_position.y << "," << (int)human_states[i].setting_target_position.x << "|"; }
     cout << endl;
 
     rep(idx_human, 9) {
