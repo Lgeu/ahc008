@@ -522,6 +522,9 @@ void MakeAction() {
         i8 assigned_pet;
     };
     static auto human_states = array<HumanState, 10>();
+    if (common::current_turn == 0) {
+        rep(i, 10) human_states[i].assigned_hub = -1;
+    }
     static auto hub_assignments = array<i8, 9>{-1, -1, -1, -1, -1, -1, -1, -1, -1};
 
     // clang-format off
@@ -866,8 +869,11 @@ void MakeAction() {
     cout << "#setting_targetting_pos=";
     rep(i, common::M) { cout << (int)human_states[i].setting_target_position.y << "," << (int)human_states[i].setting_target_position.x << "|"; }
     cout << endl;
+    cout << "#type=";
+    rep(i, common::M) { cout << (int)human_states[i].type << ","; }
+    cout << endl;
 
-    rep(idx_human, 9) {
+    rep(idx_human, common::M) {
         if (human_states[idx_human].type == HumanState::Type::MOVING_FOR_SETTING) {
             // ================================================ 1. 移動 ================================================
             static auto distance_board = Board<short, 32, 32>();
