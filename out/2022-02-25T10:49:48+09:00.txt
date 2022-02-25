@@ -1,0 +1,2710 @@
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=1,1,1,1,1,
+RLLUL
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=1,1,1,1,1,
+RLLUL
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=1,1,1,2,2,
+ULDdu
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=1,1,2,2,2,
+ULdRR
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,1,2,2,2,
+dLRRR
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+LdRll
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+dRlud
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+LduRR
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+uRRRR
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+LdRdR
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+LRdRd
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+LuRlu
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+LRlRR
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+uRRul
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+LRuRR
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+dRRRR
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+LuRld
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+dRldR
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+LddRR
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+dRRRl
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+LdRdu
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+dRdRR
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+LdRRR
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+dRRll
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+Ldlud
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+uR.RR
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+L.uRR
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+LdRdR
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+LRRRd
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+Ludlu
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+uRRRR
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+LRlul
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+dRRRR
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+LRuRR
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+duRld
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+LRRdR
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+.dlRR
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+dRdRl
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+LdRdu
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+dRRRR
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+LddRR
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+dRRll
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+LdRud
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+uRlRR
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+LduRR
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+LRRdR
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+LuRRd
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+LRdlu
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+uRRRR
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+LRlul
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+dRRRR
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+LuuRR
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,2,
+dRRld
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,2,1,
+LdRdR
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=2,2,2,1,1,
+dRlUD
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,-1,-1,
+# human_states[i].type=1,2,2,1,1,
+RddLD
+# hub_assignments=-1,-1,-1,-1,2,-1,-1,-1,-1,
+# human_states[i].type=1,1,3,1,1,
+#moving_target_position16,16
+RLUUD
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=1,1,3,1,2,
+#moving_target_position26,16
+RULLd
+# hub_assignments=-1,-1,-1,-1,-1,2,-1,-1,-1,
+# human_states[i].type=1,1,3,1,2,
+#moving_target_position16,26
+RUUUL
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=1,1,3,1,2,
+#moving_target_position26,16
+DULUd
+# hub_assignments=-1,-1,-1,-1,2,-1,-1,-1,-1,
+# human_states[i].type=1,2,3,1,2,
+#moving_target_position16,16
+DrLRL
+# hub_assignments=-1,-1,-1,-1,-1,2,-1,-1,-1,
+# human_states[i].type=1,2,3,1,2,
+#moving_target_position16,26
+DdLUu
+# hub_assignments=-1,-1,-1,-1,-1,2,-1,-1,-1,
+# human_states[i].type=1,2,3,1,2,
+#moving_target_position16,26
+DLUUL
+# hub_assignments=-1,-1,-1,-1,-1,2,-1,-1,-1,
+# human_states[i].type=1,2,3,1,2,
+#moving_target_position16,26
+LLUUL
+# hub_assignments=-1,-1,-1,-1,-1,2,-1,-1,-1,
+# human_states[i].type=1,2,3,2,2,
+#moving_target_position16,26
+DLUrL
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=1,2,3,2,2,
+#moving_target_position26,16
+DdLdL
+# hub_assignments=-1,-1,-1,-1,2,-1,-1,-1,-1,
+# human_states[i].type=1,2,3,2,2,
+#moving_target_position16,16
+DuULu
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=1,2,3,2,2,
+#moving_target_position26,16
+DLLLL
+# hub_assignments=-1,-1,-1,-1,2,-1,-1,-1,-1,
+# human_states[i].type=1,2,3,2,2,
+#moving_target_position16,16
+DrLLd
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=1,2,3,2,2,
+#moving_target_position26,16
+LLLdL
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=1,2,3,2,2,
+#moving_target_position26,16
+LLLud
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=1,2,3,2,2,
+#moving_target_position26,16
+DdLLL
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=1,2,3,2,2,
+#moving_target_position26,16
+DLLrd
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=1,2,3,2,2,
+#moving_target_position26,16
+DLLLL
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=1,2,3,2,2,
+#moving_target_position26,16
+DrLLd
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=1,2,3,2,2,
+#moving_target_position26,16
+DuLdL
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=2,2,3,2,2,
+#moving_target_position26,16
+dLDLd
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=2,2,4,2,2,
+RL.LL
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=2,2,4,2,2,
+Rr.ru
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=2,2,4,2,2,
+ld.uL
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=2,2,4,2,2,
+uL.LL
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=2,2,4,2,2,
+RL.LL
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=2,2,4,2,2,
+RL.rL
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=2,2,4,2,2,
+dd.du
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=2,2,4,2,2,
+Ru.LL
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=2,2,4,2,2,
+lL.Ld
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=2,2,4,2,2,
+Rr.LL
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=2,2,4,2,2,
+uL.dd
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=2,2,4,2,2,
+RL.uL
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=2,2,4,2,2,
+Rd.Ld
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=2,2,4,2,2,
+lL.rL
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=2,2,4,2,2,
+.L.Ld
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=2,2,4,2,2,
+dr.LL
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=2,2,4,2,2,
+Ru.dd
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=2,2,4,2,2,
+RL.LL
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=2,2,4,2,2,
+dL.L.
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=2,2,4,2,2,
+Rr.r.
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=2,2,4,2,2,
+Rd.uu
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=2,2,4,2,2,
+lL.LL
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=2,2,4,2,2,
+uL.LL
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=2,2,4,2,2,
+RL.rL
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=2,2,4,2,2,
+Rd.dL
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=2,2,4,2,2,
+du.Lu
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=2,2,4,2,2,
+RL.LL
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=2,2,4,2,2,
+lr.Ld
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=2,2,4,2,2,
+RL.dL
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=2,2,4,2,2,
+uL.ud
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=2,2,4,2,2,
+Rd.LL
+# hub_assignments=-1,-1,-1,-1,-1,-1,-1,2,-1,
+# human_states[i].type=2,2,4,2,2,
+RL.rd
+# hub_assignments=-1,-1,-1,4,-1,-1,-1,2,-1,
+# human_states[i].type=2,2,4,2,3,
+#moving_target_position16,6
+lL.LR
+# hub_assignments=-1,-1,-1,4,-1,-1,-1,2,-1,
+# human_states[i].type=2,2,4,2,3,
+#moving_target_position16,6
+dr.LR
+# hub_assignments=-1,-1,-1,4,-1,-1,-1,2,-1,
+# human_states[i].type=2,2,4,2,3,
+#moving_target_position16,6
+Ru.dR
+# hub_assignments=-1,-1,-1,4,-1,-1,1,2,-1,
+# human_states[i].type=2,3,4,2,3,
+#moving_target_position26,6
+#moving_target_position16,6
+RD.LR
+# hub_assignments=-1,-1,-1,4,-1,-1,1,2,-1,
+# human_states[i].type=2,3,4,2,4,
+#moving_target_position26,6
+dR.L.
+# hub_assignments=-1,-1,-1,4,-1,-1,1,2,-1,
+# human_states[i].type=2,3,4,2,4,
+#moving_target_position26,6
+RD.r.
+# hub_assignments=-1,-1,-1,4,-1,-1,1,2,-1,
+# human_states[i].type=2,3,4,2,4,
+#moving_target_position26,6
+RR.u.
+# hub_assignments=3,-1,-1,4,-1,-1,1,2,-1,
+# human_states[i].type=2,3,4,3,4,
+#moving_target_position26,6
+#moving_target_position6,6
+lD.D.
+# hub_assignments=3,-1,-1,4,-1,-1,1,2,-1,
+# human_states[i].type=2,3,4,3,4,
+#moving_target_position26,6
+#moving_target_position6,6
+uR.R.
+# hub_assignments=3,-1,-1,4,-1,-1,1,2,-1,
+# human_states[i].type=2,3,4,3,4,
+#moving_target_position26,6
+#moving_target_position6,6
+RR.D.
+# hub_assignments=3,-1,-1,4,-1,-1,1,2,-1,
+# human_states[i].type=2,4,4,3,4,
+#hub,petpos,put_place=6|24,2|25,4
+#target_pos25,4
+#dist=1
+#moving_target_position6,6
+R..R.
+# hub_assignments=3,-1,-1,4,-1,-1,1,2,-1,
+# human_states[i].type=2,4,4,3,4,
+#hub,petpos,put_place=6|25,3|25,4
+#target_pos25,4
+#dist=1
+#moving_target_position6,6
+d..D.
+# hub_assignments=3,-1,-1,4,-1,-1,1,2,-1,
+# human_states[i].type=2,4,4,3,4,
+#hub,petpos,put_place=6|20,4|24,5
+#hub,petpos,put_place=3|20,4|18,5
+#target_pos24,5
+#dist=1
+#moving_target_position6,6
+#target_pos18,5
+#dist=3
+#近づく 4
+R..RD
+# hub_assignments=3,-1,-1,4,-1,-1,1,2,-1,
+# human_states[i].type=2,4,4,3,4,
+#hub,petpos,put_place=6|21,5|24,5
+#hub,petpos,put_place=3|21,5|18,5
+#target_pos24,5
+#dist=1
+#moving_target_position6,6
+#target_pos18,5
+#dist=2
+#近づく 4
+l..RD
+# hub_assignments=3,-1,-1,4,-1,-1,1,2,-1,
+# human_states[i].type=2,4,4,4,4,
+#hub,petpos,put_place=6|21,5|24,5
+#hub,petpos,put_place=3|21,5|18,5
+#target_pos24,5
+#dist=1
+#target_pos18,5
+#dist=1
+R....
+# hub_assignments=3,-1,-1,4,-1,-1,1,2,-1,
+# human_states[i].type=2,4,4,4,4,
+#hub,petpos,put_place=6|20,4|24,5
+#hub,petpos,put_place=3|20,4|18,5
+#target_pos24,5
+#dist=1
+#target_pos18,5
+#dist=1
+u....
+# hub_assignments=3,-1,-1,4,-1,-1,1,2,-1,
+# human_states[i].type=2,4,4,4,4,
+#hub,petpos,put_place=6|20,4|24,5
+#hub,petpos,put_place=3|20,4|18,5
+#target_pos24,5
+#dist=1
+#target_pos18,5
+#dist=1
+R....
+# hub_assignments=3,-1,-1,4,-1,-1,1,2,-1,
+# human_states[i].type=2,4,4,4,4,
+#hub,petpos,put_place=6|21,5|24,5
+#hub,petpos,put_place=3|21,5|18,5
+#target_pos24,5
+#dist=1
+#target_pos18,5
+#dist=1
+R....
+# hub_assignments=3,-1,-1,4,-1,-1,1,2,-1,
+# human_states[i].type=2,4,4,4,4,
+#hub,petpos,put_place=6|19,5|24,5
+#hub,petpos,put_place=3|19,5|18,5
+#target_pos24,5
+#dist=1
+#target_pos18,5
+#dist=1
+l....
+# hub_assignments=3,-1,-1,4,-1,-1,1,2,-1,
+# human_states[i].type=2,4,4,4,4,
+#hub,petpos,put_place=6|19,5|24,5
+#hub,petpos,put_place=3|19,5|18,5
+#target_pos24,5
+#dist=1
+#target_pos18,5
+#dist=1
+d....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=3,4,4,4,4,
+#hub,petpos,put_place=6|20,4|24,5
+#hub,petpos,put_place=3|20,4|18,5
+#moving_target_position16,26
+#target_pos24,5
+#dist=1
+#target_pos18,5
+#dist=1
+U....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=3,4,4,4,4,
+#hub,petpos,put_place=6|22,4|24,5
+#hub,petpos,put_place=3|22,4|18,5
+#moving_target_position16,26
+#target_pos24,5
+#dist=1
+#target_pos18,5
+#dist=1
+L....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=3,4,4,4,4,
+#hub,petpos,put_place=6|22,4|24,5
+#hub,petpos,put_place=3|22,4|18,5
+#moving_target_position16,26
+#target_pos24,5
+#dist=1
+#target_pos18,5
+#dist=1
+U....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=3,4,4,4,4,
+#hub,petpos,put_place=6|21,3|24,5
+#hub,petpos,put_place=3|21,3|18,5
+#moving_target_position16,26
+#target_pos24,5
+#dist=1
+#target_pos18,5
+#dist=1
+L....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=3,4,4,4,4,
+#hub,petpos,put_place=6|20,4|24,5
+#hub,petpos,put_place=3|20,4|18,5
+#moving_target_position16,26
+#target_pos24,5
+#dist=1
+#target_pos18,5
+#dist=1
+L....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=6|21,5|24,5
+#hub,petpos,put_place=3|21,5|18,5
+#hub,petpos,put_place=5|18,30|17,28
+#target_pos17,28
+#dist=1
+#target_pos24,5
+#dist=1
+#target_pos18,5
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=6|21,5|24,5
+#hub,petpos,put_place=3|21,5|18,5
+#hub,petpos,put_place=5|17,29|17,28
+#target_pos17,28
+#dist=1
+#target_pos24,5
+#dist=1
+#target_pos18,5
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=6|22,4|24,5
+#hub,petpos,put_place=3|22,4|18,5
+#hub,petpos,put_place=5|17,29|17,28
+#target_pos17,28
+#dist=1
+#target_pos24,5
+#dist=1
+#target_pos18,5
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=6|22,4|24,5
+#hub,petpos,put_place=3|22,4|18,5
+#hub,petpos,put_place=5|17,29|17,28
+#target_pos17,28
+#dist=1
+#target_pos24,5
+#dist=1
+#target_pos18,5
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=6|21,3|24,5
+#hub,petpos,put_place=3|21,3|18,5
+#hub,petpos,put_place=5|18,30|17,28
+#target_pos17,28
+#dist=1
+#target_pos24,5
+#dist=1
+#target_pos18,5
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=6|22,4|24,5
+#hub,petpos,put_place=3|22,4|18,5
+#hub,petpos,put_place=5|17,29|17,28
+#target_pos17,28
+#dist=1
+#target_pos24,5
+#dist=1
+#target_pos18,5
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=6|21,3|24,5
+#hub,petpos,put_place=3|21,3|18,5
+#hub,petpos,put_place=5|17,29|17,28
+#target_pos17,28
+#dist=1
+#target_pos24,5
+#dist=1
+#target_pos18,5
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=6|21,3|24,5
+#hub,petpos,put_place=3|21,3|18,5
+#target_pos24,5
+#dist=1
+#target_pos18,5
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=6|21,3|24,5
+#hub,petpos,put_place=3|21,3|18,5
+#hub,petpos,put_place=5|17,29|17,28
+#target_pos17,28
+#dist=1
+#target_pos24,5
+#dist=1
+#target_pos18,5
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=6|21,3|24,5
+#hub,petpos,put_place=3|21,3|18,5
+#hub,petpos,put_place=5|17,29|17,28
+#target_pos17,28
+#dist=1
+#target_pos24,5
+#dist=1
+#target_pos18,5
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=6|21,3|24,5
+#hub,petpos,put_place=3|21,3|18,5
+#hub,petpos,put_place=5|17,29|17,28
+#target_pos17,28
+#dist=1
+#target_pos24,5
+#dist=1
+#target_pos18,5
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=6|21,3|24,5
+#hub,petpos,put_place=3|21,3|18,5
+#target_pos24,5
+#dist=1
+#target_pos18,5
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=6|21,3|24,5
+#hub,petpos,put_place=3|21,3|18,5
+#hub,petpos,put_place=5|17,29|17,28
+#target_pos17,28
+#dist=1
+#target_pos24,5
+#dist=1
+#target_pos18,5
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=6|21,5|24,5
+#hub,petpos,put_place=3|21,5|18,5
+#hub,petpos,put_place=5|18,30|17,28
+#target_pos17,28
+#dist=1
+#target_pos24,5
+#dist=1
+#target_pos18,5
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=6|20,4|24,5
+#hub,petpos,put_place=3|20,4|18,5
+#hub,petpos,put_place=5|18,30|17,28
+#target_pos17,28
+#dist=1
+#target_pos24,5
+#dist=1
+#target_pos18,5
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=6|20,4|24,5
+#hub,petpos,put_place=3|20,4|18,5
+#hub,petpos,put_place=5|18,30|17,28
+#target_pos17,28
+#dist=1
+#target_pos24,5
+#dist=1
+#target_pos18,5
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=6|20,4|24,5
+#hub,petpos,put_place=3|20,4|18,5
+#hub,petpos,put_place=5|18,30|17,28
+#target_pos17,28
+#dist=1
+#target_pos24,5
+#dist=1
+#target_pos18,5
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=6|19,5|24,5
+#hub,petpos,put_place=3|19,5|18,5
+#hub,petpos,put_place=5|17,29|17,28
+#target_pos17,28
+#dist=1
+#target_pos24,5
+#dist=1
+#target_pos18,5
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=5|18,30|17,28
+#hub,petpos,put_place=6|29,7|28,7
+#target_pos17,28
+#dist=1
+#target_pos28,7
+#dist=5
+#近づく 1
+.R...
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=5|18,30|17,28
+#hub,petpos,put_place=7|29,11|27,14
+#hub,petpos,put_place=6|29,11|27,8
+#target_pos17,28
+#dist=1
+#target_pos27,8
+#dist=4
+#近づく 1
+#target_pos27,14
+#dist=5
+#近づく 2
+.RL..
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=5|18,30|17,28
+#hub,petpos,put_place=7|29,11|27,14
+#hub,petpos,put_place=6|29,11|27,8
+#target_pos17,28
+#dist=1
+#target_pos27,8
+#dist=3
+#近づく 1
+#target_pos27,14
+#dist=4
+#近づく 2
+.RD..
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=5|18,30|17,28
+#hub,petpos,put_place=7|29,11|27,14
+#hub,petpos,put_place=6|29,11|27,8
+#target_pos17,28
+#dist=1
+#target_pos27,8
+#dist=2
+#近づく 1
+#target_pos27,14
+#dist=3
+#近づく 2
+.DL..
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=5|18,30|17,28
+#hub,petpos,put_place=7|29,11|27,14
+#hub,petpos,put_place=6|29,11|27,8
+#target_pos17,28
+#dist=1
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=2
+#近づく 2
+..D..
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=5|17,29|17,28
+#hub,petpos,put_place=7|28,10|27,14
+#hub,petpos,put_place=6|28,10|27,8
+#hub,petpos,put_place=3|15,3|15,4
+#target_pos17,28
+#dist=1
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos15,4
+#dist=3
+#近づく 4
+....L
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=5|17,29|17,28
+#hub,petpos,put_place=7|27,11|27,14
+#hub,petpos,put_place=6|27,11|27,8
+#hub,petpos,put_place=3|15,3|15,4
+#target_pos17,28
+#dist=1
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos15,4
+#dist=2
+#近づく 4
+....U
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=3|14,2|15,4
+#hub,petpos,put_place=5|18,30|17,28
+#hub,petpos,put_place=7|27,9|27,14
+#hub,petpos,put_place=6|27,9|27,8
+#target_pos17,28
+#dist=1
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos15,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|25,9|25,14
+#hub,petpos,put_place=6|25,9|25,8
+#hub,petpos,put_place=3|14,2|15,4
+#hub,petpos,put_place=5|18,30|17,28
+#target_pos17,28
+#dist=1
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos15,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|24,10|25,14
+#hub,petpos,put_place=6|24,10|25,8
+#hub,petpos,put_place=3|13,1|15,4
+#hub,petpos,put_place=5|17,29|17,28
+#target_pos17,28
+#dist=1
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos15,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|25,11|25,14
+#hub,petpos,put_place=6|25,11|25,8
+#hub,petpos,put_place=3|14,2|15,4
+#hub,petpos,put_place=5|18,30|17,28
+#target_pos17,28
+#dist=1
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos15,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|25,11|25,14
+#hub,petpos,put_place=6|25,11|25,8
+#hub,petpos,put_place=3|14,2|15,4
+#hub,petpos,put_place=5|18,30|17,28
+#target_pos17,28
+#dist=1
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos15,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|24,12|25,14
+#hub,petpos,put_place=6|24,12|25,8
+#hub,petpos,put_place=3|14,2|15,4
+#hub,petpos,put_place=5|17,29|17,28
+#target_pos17,28
+#dist=1
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos15,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|24,12|25,14
+#hub,petpos,put_place=6|24,12|25,8
+#hub,petpos,put_place=3|15,3|15,4
+#hub,petpos,put_place=5|17,29|17,28
+#target_pos17,28
+#dist=1
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos15,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|24,12|25,14
+#hub,petpos,put_place=6|24,12|25,8
+#hub,petpos,put_place=3|15,3|15,4
+#hub,petpos,put_place=5|17,29|17,28
+#target_pos17,28
+#dist=1
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos15,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|23,11|25,14
+#hub,petpos,put_place=6|23,11|25,8
+#hub,petpos,put_place=3|15,3|15,4
+#hub,petpos,put_place=5|18,30|17,28
+#target_pos17,28
+#dist=1
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos15,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|23,11|25,14
+#hub,petpos,put_place=6|23,11|25,8
+#hub,petpos,put_place=3|15,3|15,4
+#hub,petpos,put_place=5|18,30|17,28
+#target_pos17,28
+#dist=1
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos15,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|24,10|25,14
+#hub,petpos,put_place=6|24,10|25,8
+#hub,petpos,put_place=5|18,30|17,28
+#hub,petpos,put_place=3|10,7|14,7
+#hub,petpos,put_place=0|10,7|8,7
+#target_pos17,28
+#dist=1
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos8,7
+#dist=5
+#近づく 3
+#target_pos14,7
+#dist=5
+#近づく 4
+...RR
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|24,10|25,14
+#hub,petpos,put_place=6|24,10|25,8
+#hub,petpos,put_place=5|18,30|17,28
+#hub,petpos,put_place=3|11,7|14,7
+#hub,petpos,put_place=0|11,7|8,7
+#target_pos17,28
+#dist=1
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos8,7
+#dist=4
+#近づく 3
+#target_pos14,7
+#dist=4
+#近づく 4
+...RR
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|23,11|25,14
+#hub,petpos,put_place=6|23,11|25,8
+#hub,petpos,put_place=5|18,30|17,28
+#hub,petpos,put_place=3|12,7|14,7
+#hub,petpos,put_place=0|12,7|8,7
+#target_pos17,28
+#dist=1
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos8,7
+#dist=3
+#近づく 3
+#target_pos14,7
+#dist=3
+#近づく 4
+...DR
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|23,11|25,14
+#hub,petpos,put_place=6|23,11|25,8
+#hub,petpos,put_place=5|18,30|17,28
+#hub,petpos,put_place=3|12,8|14,7
+#hub,petpos,put_place=0|12,8|8,7
+#target_pos17,28
+#dist=1
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos8,7
+#dist=2
+#近づく 3
+#target_pos14,7
+#dist=2
+#近づく 4
+...DU
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|23,11|25,14
+#hub,petpos,put_place=6|23,11|25,8
+#hub,petpos,put_place=3|12,9|14,7
+#hub,petpos,put_place=0|12,9|8,7
+#hub,petpos,put_place=5|18,30|17,28
+#target_pos17,28
+#dist=1
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos8,7
+#dist=1
+#target_pos14,7
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|25,11|25,14
+#hub,petpos,put_place=6|25,11|25,8
+#hub,petpos,put_place=3|11,9|14,7
+#hub,petpos,put_place=0|11,9|8,7
+#hub,petpos,put_place=5|17,29|17,28
+#target_pos17,28
+#dist=1
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos8,7
+#dist=1
+#target_pos14,7
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|24,10|25,14
+#hub,petpos,put_place=6|24,10|25,8
+#hub,petpos,put_place=3|11,8|14,7
+#hub,petpos,put_place=0|11,8|8,7
+#hub,petpos,put_place=5|17,29|17,28
+#target_pos17,28
+#dist=1
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos8,7
+#dist=1
+#target_pos14,7
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|25,9|25,14
+#hub,petpos,put_place=6|25,9|25,8
+#hub,petpos,put_place=3|10,8|14,7
+#hub,petpos,put_place=0|10,8|8,7
+#hub,petpos,put_place=5|18,30|17,28
+#target_pos17,28
+#dist=1
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos8,7
+#dist=1
+#target_pos14,7
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|24,10|25,14
+#hub,petpos,put_place=6|24,10|25,8
+#hub,petpos,put_place=3|10,7|14,7
+#hub,petpos,put_place=0|10,7|8,7
+#hub,petpos,put_place=5|18,30|17,28
+#target_pos17,28
+#dist=1
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos8,7
+#dist=1
+#target_pos14,7
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|23,11|25,14
+#hub,petpos,put_place=6|23,11|25,8
+#hub,petpos,put_place=3|9,7|14,7
+#hub,petpos,put_place=0|9,7|8,7
+#hub,petpos,put_place=5|17,29|17,28
+#target_pos17,28
+#dist=1
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos8,7
+#dist=1
+#target_pos14,7
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|23,11|25,14
+#hub,petpos,put_place=6|23,11|25,8
+#hub,petpos,put_place=3|10,7|14,7
+#hub,petpos,put_place=0|10,7|8,7
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos8,7
+#dist=1
+#target_pos14,7
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|24,10|25,14
+#hub,petpos,put_place=6|24,10|25,8
+#hub,petpos,put_place=3|10,8|14,7
+#hub,petpos,put_place=0|10,8|8,7
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos8,7
+#dist=1
+#target_pos14,7
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|24,10|25,14
+#hub,petpos,put_place=6|24,10|25,8
+#hub,petpos,put_place=3|9,8|14,7
+#hub,petpos,put_place=0|9,8|8,7
+#hub,petpos,put_place=5|17,29|17,28
+#target_pos17,28
+#dist=1
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos8,7
+#dist=1
+#target_pos14,7
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|24,10|25,14
+#hub,petpos,put_place=6|24,10|25,8
+#hub,petpos,put_place=3|10,8|14,7
+#hub,petpos,put_place=0|10,8|8,7
+#hub,petpos,put_place=5|17,29|17,28
+#target_pos17,28
+#dist=1
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos8,7
+#dist=1
+#target_pos14,7
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|24,10|25,14
+#hub,petpos,put_place=6|24,10|25,8
+#hub,petpos,put_place=3|9,8|14,7
+#hub,petpos,put_place=0|9,8|8,7
+#hub,petpos,put_place=5|17,29|17,28
+#target_pos17,28
+#dist=1
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos8,7
+#dist=1
+#target_pos14,7
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|23,11|25,14
+#hub,petpos,put_place=6|23,11|25,8
+#hub,petpos,put_place=3|9,7|14,7
+#hub,petpos,put_place=0|9,7|8,7
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos8,7
+#dist=1
+#target_pos14,7
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|23,11|25,14
+#hub,petpos,put_place=6|23,11|25,8
+#hub,petpos,put_place=3|10,8|14,7
+#hub,petpos,put_place=0|10,8|8,7
+#hub,petpos,put_place=5|17,29|17,28
+#target_pos17,28
+#dist=1
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos8,7
+#dist=1
+#target_pos14,7
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|25,11|25,14
+#hub,petpos,put_place=6|25,11|25,8
+#hub,petpos,put_place=3|9,7|14,7
+#hub,petpos,put_place=0|9,7|8,7
+#hub,petpos,put_place=5|18,30|17,28
+#target_pos17,28
+#dist=1
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos8,7
+#dist=1
+#target_pos14,7
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|25,11|25,14
+#hub,petpos,put_place=6|25,11|25,8
+#hub,petpos,put_place=3|11,7|14,7
+#hub,petpos,put_place=0|11,7|8,7
+#hub,petpos,put_place=5|17,29|17,28
+#target_pos17,28
+#dist=1
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos8,7
+#dist=1
+#target_pos14,7
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|25,13|25,14
+#hub,petpos,put_place=6|25,13|25,8
+#hub,petpos,put_place=3|11,7|14,7
+#hub,petpos,put_place=0|11,7|8,7
+#hub,petpos,put_place=5|18,30|17,28
+#target_pos17,28
+#dist=1
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos8,7
+#dist=1
+#target_pos14,7
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|24,12|25,14
+#hub,petpos,put_place=6|24,12|25,8
+#hub,petpos,put_place=3|9,7|14,7
+#hub,petpos,put_place=0|9,7|8,7
+#hub,petpos,put_place=5|18,30|17,28
+#target_pos17,28
+#dist=1
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos8,7
+#dist=1
+#target_pos14,7
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|25,13|25,14
+#hub,petpos,put_place=6|25,13|25,8
+#hub,petpos,put_place=3|9,7|14,7
+#hub,petpos,put_place=0|9,7|8,7
+#hub,petpos,put_place=5|18,30|17,28
+#target_pos17,28
+#dist=1
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos8,7
+#dist=1
+#target_pos14,7
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|25,13|25,14
+#hub,petpos,put_place=6|25,13|25,8
+#hub,petpos,put_place=5|18,30|17,28
+#target_pos17,28
+#dist=1
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=5|17,29|17,28
+#hub,petpos,put_place=6|21,7|24,7
+#hub,petpos,put_place=3|21,7|18,7
+#target_pos17,28
+#dist=1
+#target_pos24,7
+#dist=3
+#近づく 1
+#target_pos18,7
+#dist=3
+#近づく 4
+.L..D
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=6|20,8|24,7
+#hub,petpos,put_place=3|20,8|18,7
+#target_pos24,7
+#dist=2
+#近づく 1
+#target_pos18,7
+#dist=2
+#近づく 4
+.U..D
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=6|20,8|24,7
+#hub,petpos,put_place=3|20,8|18,7
+#target_pos24,7
+#dist=1
+#target_pos18,7
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|25,13|25,14
+#hub,petpos,put_place=6|25,13|25,8
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|24,12|25,14
+#hub,petpos,put_place=6|24,12|25,8
+#hub,petpos,put_place=0|3,5|4,5
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos4,5
+#dist=5
+#近づく 3
+...L.
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|23,11|25,14
+#hub,petpos,put_place=6|23,11|25,8
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|23,11|25,14
+#hub,petpos,put_place=6|23,11|25,8
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|23,11|25,14
+#hub,petpos,put_place=6|23,11|25,8
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|25,11|25,14
+#hub,petpos,put_place=6|25,11|25,8
+#hub,petpos,put_place=0|5,3|5,4
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos5,4
+#dist=4
+#近づく 3
+...L.
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|25,11|25,14
+#hub,petpos,put_place=6|25,11|25,8
+#hub,petpos,put_place=0|4,3|5,4
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos5,4
+#dist=3
+#近づく 3
+...L.
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|25,9|25,14
+#hub,petpos,put_place=6|25,9|25,8
+#hub,petpos,put_place=0|5,3|5,4
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos5,4
+#dist=2
+#近づく 3
+...U.
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=0|4,3|5,4
+#hub,petpos,put_place=6|19,7|24,7
+#hub,petpos,put_place=3|19,7|18,7
+#target_pos24,7
+#dist=1
+#target_pos5,4
+#dist=1
+#target_pos18,7
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=0|5,3|5,4
+#hub,petpos,put_place=6|20,8|24,7
+#hub,petpos,put_place=3|20,8|18,7
+#target_pos24,7
+#dist=1
+#target_pos5,4
+#dist=1
+#target_pos18,7
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=0|5,2|5,4
+#hub,petpos,put_place=6|20,8|24,7
+#hub,petpos,put_place=3|20,8|18,7
+#target_pos24,7
+#dist=1
+#target_pos5,4
+#dist=1
+#target_pos18,7
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=0|4,2|5,4
+#hub,petpos,put_place=6|19,7|24,7
+#hub,petpos,put_place=3|19,7|18,7
+#target_pos24,7
+#dist=1
+#target_pos5,4
+#dist=1
+#target_pos18,7
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=0|4,1|5,4
+#hub,petpos,put_place=6|20,8|24,7
+#hub,petpos,put_place=3|20,8|18,7
+#target_pos24,7
+#dist=1
+#target_pos5,4
+#dist=1
+#target_pos18,7
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=0|5,1|5,4
+#hub,petpos,put_place=6|19,7|24,7
+#hub,petpos,put_place=3|19,7|18,7
+#target_pos24,7
+#dist=1
+#target_pos5,4
+#dist=1
+#target_pos18,7
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=0|5,2|5,4
+#hub,petpos,put_place=7|28,10|27,14
+#hub,petpos,put_place=6|28,10|27,8
+#target_pos27,8
+#dist=3
+#近づく 1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.R...
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=0|5,1|5,4
+#hub,petpos,put_place=7|28,12|27,14
+#hub,petpos,put_place=6|28,12|27,8
+#target_pos27,8
+#dist=2
+#近づく 1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.D...
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|28,12|27,14
+#hub,petpos,put_place=6|28,12|27,8
+#hub,petpos,put_place=0|5,2|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|27,11|27,14
+#hub,petpos,put_place=6|27,11|27,8
+#hub,petpos,put_place=0|4,2|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|27,9|27,14
+#hub,petpos,put_place=6|27,9|27,8
+#hub,petpos,put_place=0|5,2|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|27,9|27,14
+#hub,petpos,put_place=6|27,9|27,8
+#hub,petpos,put_place=0|4,2|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=0|3,2|5,4
+#hub,petpos,put_place=6|29,7|28,7
+#target_pos28,7
+#dist=3
+#近づく 1
+#target_pos5,4
+#dist=1
+.L...
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=0|4,2|5,4
+#hub,petpos,put_place=7|27,9|27,14
+#hub,petpos,put_place=6|27,9|27,8
+#target_pos27,8
+#dist=2
+#近づく 1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.R...
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|28,10|27,14
+#hub,petpos,put_place=6|28,10|27,8
+#hub,petpos,put_place=0|4,3|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|28,12|27,14
+#hub,petpos,put_place=6|28,12|27,8
+#hub,petpos,put_place=0|4,2|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|28,12|27,14
+#hub,petpos,put_place=6|28,12|27,8
+#hub,petpos,put_place=0|4,1|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|28,12|27,14
+#hub,petpos,put_place=6|28,12|27,8
+#hub,petpos,put_place=0|3,1|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|28,12|27,14
+#hub,petpos,put_place=6|28,12|27,8
+#hub,petpos,put_place=0|4,1|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|28,12|27,14
+#hub,petpos,put_place=6|28,12|27,8
+#hub,petpos,put_place=0|3,1|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|28,12|27,14
+#hub,petpos,put_place=6|28,12|27,8
+#hub,petpos,put_place=0|2,1|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|29,11|27,14
+#hub,petpos,put_place=6|29,11|27,8
+#hub,petpos,put_place=0|3,1|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|27,11|27,14
+#hub,petpos,put_place=6|27,11|27,8
+#hub,petpos,put_place=0|2,1|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|28,10|27,14
+#hub,petpos,put_place=6|28,10|27,8
+#hub,petpos,put_place=0|3,1|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|29,11|27,14
+#hub,petpos,put_place=6|29,11|27,8
+#hub,petpos,put_place=0|4,1|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|29,11|27,14
+#hub,petpos,put_place=6|29,11|27,8
+#hub,petpos,put_place=0|4,2|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|29,11|27,14
+#hub,petpos,put_place=6|29,11|27,8
+#hub,petpos,put_place=0|4,1|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|28,12|27,14
+#hub,petpos,put_place=6|28,12|27,8
+#hub,petpos,put_place=0|4,2|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|28,12|27,14
+#hub,petpos,put_place=6|28,12|27,8
+#hub,petpos,put_place=0|4,1|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|27,11|27,14
+#hub,petpos,put_place=6|27,11|27,8
+#hub,petpos,put_place=0|5,1|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|27,11|27,14
+#hub,petpos,put_place=6|27,11|27,8
+#hub,petpos,put_place=0|5,2|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|27,11|27,14
+#hub,petpos,put_place=6|27,11|27,8
+#hub,petpos,put_place=0|5,1|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|27,13|27,14
+#hub,petpos,put_place=6|27,13|27,8
+#hub,petpos,put_place=0|4,1|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|28,12|27,14
+#hub,petpos,put_place=6|28,12|27,8
+#hub,petpos,put_place=0|5,1|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|29,11|27,14
+#hub,petpos,put_place=6|29,11|27,8
+#hub,petpos,put_place=0|5,2|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|28,12|27,14
+#hub,petpos,put_place=6|28,12|27,8
+#hub,petpos,put_place=0|5,1|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|28,12|27,14
+#hub,petpos,put_place=6|28,12|27,8
+#hub,petpos,put_place=0|4,1|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|27,11|27,14
+#hub,petpos,put_place=6|27,11|27,8
+#hub,petpos,put_place=0|5,1|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|27,9|27,14
+#hub,petpos,put_place=6|27,9|27,8
+#hub,petpos,put_place=0|4,1|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|27,9|27,14
+#hub,petpos,put_place=6|27,9|27,8
+#hub,petpos,put_place=0|4,2|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|27,11|27,14
+#hub,petpos,put_place=6|27,11|27,8
+#hub,petpos,put_place=0|4,3|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|27,11|27,14
+#hub,petpos,put_place=6|27,11|27,8
+#hub,petpos,put_place=0|4,2|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|27,11|27,14
+#hub,petpos,put_place=6|27,11|27,8
+#hub,petpos,put_place=0|4,1|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|29,11|27,14
+#hub,petpos,put_place=6|29,11|27,8
+#hub,petpos,put_place=0|3,1|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|28,12|27,14
+#hub,petpos,put_place=6|28,12|27,8
+#hub,petpos,put_place=0|3,2|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|27,13|27,14
+#hub,petpos,put_place=6|27,13|27,8
+#hub,petpos,put_place=0|4,2|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|27,11|27,14
+#hub,petpos,put_place=6|27,11|27,8
+#hub,petpos,put_place=0|4,1|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|28,12|27,14
+#hub,petpos,put_place=6|28,12|27,8
+#hub,petpos,put_place=0|4,2|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|28,12|27,14
+#hub,petpos,put_place=6|28,12|27,8
+#hub,petpos,put_place=0|4,3|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|28,12|27,14
+#hub,petpos,put_place=6|28,12|27,8
+#hub,petpos,put_place=0|5,3|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|27,13|27,14
+#hub,petpos,put_place=6|27,13|27,8
+#hub,petpos,put_place=0|4,3|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|28,12|27,14
+#hub,petpos,put_place=6|28,12|27,8
+#hub,petpos,put_place=0|5,3|5,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos5,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|27,11|27,14
+#hub,petpos,put_place=6|27,11|27,8
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|28,12|27,14
+#hub,petpos,put_place=6|28,12|27,8
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|29,11|27,14
+#hub,petpos,put_place=6|29,11|27,8
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|29,11|27,14
+#hub,petpos,put_place=6|29,11|27,8
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|27,11|27,14
+#hub,petpos,put_place=6|27,11|27,8
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|27,13|27,14
+#hub,petpos,put_place=6|27,13|27,8
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|27,9|27,14
+#hub,petpos,put_place=6|27,9|27,8
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|25,13|25,14
+#hub,petpos,put_place=6|25,13|25,8
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|24,12|25,14
+#hub,petpos,put_place=6|24,12|25,8
+#hub,petpos,put_place=5|14,30|15,28
+#target_pos15,28
+#dist=3
+#近づく 0
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+R....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|24,12|25,14
+#hub,petpos,put_place=6|24,12|25,8
+#hub,petpos,put_place=5|14,30|15,28
+#hub,petpos,put_place=0|3,5|4,5
+#target_pos15,28
+#dist=2
+#近づく 0
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos4,5
+#dist=3
+#近づく 3
+U..R.
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|23,11|25,14
+#hub,petpos,put_place=6|23,11|25,8
+#hub,petpos,put_place=5|15,29|15,28
+#target_pos15,28
+#dist=1
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|24,10|25,14
+#hub,petpos,put_place=6|24,10|25,8
+#hub,petpos,put_place=0|3,5|4,5
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos4,5
+#dist=2
+#近づく 3
+...U.
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|24,10|25,14
+#hub,petpos,put_place=6|24,10|25,8
+#hub,petpos,put_place=0|3,4|4,5
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos4,5
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|23,11|25,14
+#hub,petpos,put_place=6|23,11|25,8
+#hub,petpos,put_place=0|3,5|4,5
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos4,5
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|23,11|25,14
+#hub,petpos,put_place=6|23,11|25,8
+#hub,petpos,put_place=0|2,5|4,5
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos4,5
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|23,11|25,14
+#hub,petpos,put_place=6|23,11|25,8
+#hub,petpos,put_place=0|2,4|4,5
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos4,5
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|24,12|25,14
+#hub,petpos,put_place=6|24,12|25,8
+#hub,petpos,put_place=0|2,3|4,5
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos4,5
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|24,12|25,14
+#hub,petpos,put_place=6|24,12|25,8
+#hub,petpos,put_place=0|1,3|4,5
+#hub,petpos,put_place=5|15,29|15,28
+#target_pos15,28
+#dist=1
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos4,5
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|24,12|25,14
+#hub,petpos,put_place=6|24,12|25,8
+#hub,petpos,put_place=0|1,4|4,5
+#hub,petpos,put_place=5|14,30|15,28
+#target_pos15,28
+#dist=1
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos4,5
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|23,11|25,14
+#hub,petpos,put_place=6|23,11|25,8
+#hub,petpos,put_place=0|1,5|4,5
+#hub,petpos,put_place=5|14,30|15,28
+#target_pos15,28
+#dist=1
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos4,5
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|23,11|25,14
+#hub,petpos,put_place=6|23,11|25,8
+#hub,petpos,put_place=0|1,4|4,5
+#hub,petpos,put_place=5|15,29|15,28
+#target_pos15,28
+#dist=1
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos4,5
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|24,12|25,14
+#hub,petpos,put_place=6|24,12|25,8
+#hub,petpos,put_place=0|2,4|4,5
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos4,5
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|25,13|25,14
+#hub,petpos,put_place=6|25,13|25,8
+#hub,petpos,put_place=0|1,4|4,5
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos4,5
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|25,13|25,14
+#hub,petpos,put_place=6|25,13|25,8
+#hub,petpos,put_place=0|2,4|4,5
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos4,5
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|25,13|25,14
+#hub,petpos,put_place=6|25,13|25,8
+#hub,petpos,put_place=0|3,4|4,5
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos4,5
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|25,13|25,14
+#hub,petpos,put_place=6|25,13|25,8
+#hub,petpos,put_place=0|2,4|4,5
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos4,5
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|25,13|25,14
+#hub,petpos,put_place=6|25,13|25,8
+#hub,petpos,put_place=0|2,5|4,5
+#target_pos25,8
+#dist=1
+#target_pos25,14
+#dist=1
+#target_pos4,5
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=0|1,5|4,5
+#target_pos4,5
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|27,13|27,14
+#hub,petpos,put_place=6|27,13|27,8
+#hub,petpos,put_place=0|1,4|4,5
+#hub,petpos,put_place=3|17,3|17,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos4,5
+#dist=1
+#target_pos17,4
+#dist=3
+#近づく 4
+....L
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|27,12|27,14
+#hub,petpos,put_place=6|27,12|27,8
+#hub,petpos,put_place=0|1,3|4,5
+#hub,petpos,put_place=3|18,2|17,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos4,5
+#dist=1
+#target_pos17,4
+#dist=2
+#近づく 4
+....L
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|27,13|27,14
+#hub,petpos,put_place=6|27,13|27,8
+#hub,petpos,put_place=0|1,2|4,5
+#hub,petpos,put_place=3|18,2|17,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos4,5
+#dist=1
+#target_pos17,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|28,12|27,14
+#hub,petpos,put_place=6|28,12|27,8
+#hub,petpos,put_place=0|1,3|4,5
+#hub,petpos,put_place=3|19,1|17,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos4,5
+#dist=1
+#target_pos17,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|27,11|27,14
+#hub,petpos,put_place=6|27,11|27,8
+#hub,petpos,put_place=0|1,4|4,5
+#hub,petpos,put_place=3|19,1|17,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos4,5
+#dist=1
+#target_pos17,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|28,10|27,14
+#hub,petpos,put_place=6|28,10|27,8
+#hub,petpos,put_place=0|1,3|4,5
+#hub,petpos,put_place=3|18,2|17,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos4,5
+#dist=1
+#target_pos17,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|27,9|27,14
+#hub,petpos,put_place=6|27,9|27,8
+#hub,petpos,put_place=0|1,2|4,5
+#hub,petpos,put_place=3|19,1|17,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos4,5
+#dist=1
+#target_pos17,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|27,9|27,14
+#hub,petpos,put_place=6|27,9|27,8
+#hub,petpos,put_place=0|1,3|4,5
+#hub,petpos,put_place=3|19,1|17,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos4,5
+#dist=1
+#target_pos17,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|27,9|27,14
+#hub,petpos,put_place=6|27,9|27,8
+#hub,petpos,put_place=0|1,4|4,5
+#hub,petpos,put_place=3|18,2|17,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos4,5
+#dist=1
+#target_pos17,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|27,9|27,14
+#hub,petpos,put_place=6|27,9|27,8
+#hub,petpos,put_place=0|1,5|4,5
+#hub,petpos,put_place=3|17,3|17,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos4,5
+#dist=1
+#target_pos17,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|27,13|27,14
+#hub,petpos,put_place=6|27,13|27,8
+#hub,petpos,put_place=0|2,5|4,5
+#hub,petpos,put_place=3|17,3|17,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos4,5
+#dist=1
+#target_pos17,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|28,13|27,14
+#hub,petpos,put_place=6|28,13|27,8
+#hub,petpos,put_place=0|3,5|4,5
+#hub,petpos,put_place=3|17,1|17,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos4,5
+#dist=1
+#target_pos17,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|28,12|27,14
+#hub,petpos,put_place=6|28,12|27,8
+#hub,petpos,put_place=3|17,3|17,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos17,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|27,12|27,14
+#hub,petpos,put_place=6|27,12|27,8
+#hub,petpos,put_place=3|18,2|17,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos17,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|28,12|27,14
+#hub,petpos,put_place=6|28,12|27,8
+#hub,petpos,put_place=3|17,1|17,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos17,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|29,12|27,14
+#hub,petpos,put_place=6|29,12|27,8
+#hub,petpos,put_place=3|17,1|17,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos17,4
+#dist=1
+.....
+# hub_assignments=3,-1,-1,4,-1,0,1,2,-1,
+# human_states[i].type=4,4,4,4,4,
+#hub,petpos,put_place=7|29,11|27,14
+#hub,petpos,put_place=6|29,11|27,8
+#hub,petpos,put_place=3|17,1|17,4
+#target_pos27,8
+#dist=1
+#target_pos27,14
+#dist=1
+#target_pos17,4
+#dist=1
+.....

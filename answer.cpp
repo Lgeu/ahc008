@@ -94,25 +94,6 @@ template <class T, class S> inline bool chmax(T& m, const S q) {
         return false;
 }
 
-// 乱数
-struct Random {
-    using ull = unsigned long long;
-    unsigned seed;
-    inline Random(const unsigned& seed_) : seed(seed_) { ASSERT(seed != 0u, "Seed should not be 0."); }
-    const inline unsigned& next() {
-        seed ^= seed << 13;
-        seed ^= seed >> 17;
-        seed ^= seed << 5;
-        return seed;
-    }
-    // (0.0, 1.0)
-    inline double random() { return (double)next() * (1.0 / (double)0x100000000ull); }
-    // [0, right)
-    inline int randint(const int& right) { return (ull)next() * right >> 32; }
-    // [left, right)
-    inline int randint(const int& left, const int& right) { return ((ull)next() * (right - left) >> 32) + left; }
-};
-
 // 2 次元ベクトル
 template <typename T> struct Vec2 {
     /*
@@ -523,12 +504,14 @@ void MakeAction() {
             SETTING,
             MOVING,
             WAITING,
+            CATCHING,
         };
         Type type;
         bool setting_left_to_right;
         Vec2<i8> moving_target_position;
         Vec2<i8> setting_target_position;
         i8 assigned_hub;
+        i8 assigned_pet;
     };
     static auto human_states = array<HumanState, 10>();
     static auto hub_assignments = array<i8, 9>{-1, -1, -1, -1, -1, -1, -1, -1, -1};
@@ -591,10 +574,37 @@ void MakeAction() {
         {4, 3}, {4, 3},
     };
     // clang-format on
+
+    //   7 0
+    // 6     1
+    // 5     2
+    //   4 3
+    // static constexpr auto hub_neighboring_cell = array<
+    // static constexpr auto hub_put_places = array<array<Vec2<i8>, 8>, 9>
+
     static constexpr auto hub_centers = array<Vec2<i8>, 9>{
         Vec2<i8>{6, 6}, {6, 16}, {6, 26}, {16, 6}, {16, 16}, {16, 26}, {26, 6}, {26, 16}, {26, 26},
     };
+
+    auto hub_and_pet_pos_to_put_place = [&](const int& hub_id, const Vec2<i8>& pos) {
+        const auto& hub_pos = hub_centers[hub_id];
+        auto diff = pos - hub_pos;
+        if (abs(diff.y) > abs(diff.x)) {
+            diff.y = (diff.y > 0 ? 2 : -2);
+            diff.x = (diff.x > 0 ? 1 : -1);
+        } else {
+            diff.y = (diff.y > 0 ? 1 : -1);
+            diff.x = (diff.x > 0 ? 2 : -2);
+        }
+        return hub_pos + diff;
+    };
+
     rep(idx_human, common::M) {
+        human_states[idx_human].assigned_pet = -1;
+        if ((int)human_states[idx_human].type >= (int)HumanState::Type::MOVING) {
+            human_states[idx_human].moving_target_position = {-1, -1};
+            human_states[idx_human].setting_target_position = {-1, -1};
+        }
         if (human_states[idx_human].type == HumanState::Type::MOVING) {
             human_states[idx_human].type = HumanState::Type::NONE;
             hub_assignments[human_states[idx_human].assigned_hub] = -1;
@@ -684,7 +694,82 @@ void MakeAction() {
         }
     }
 
-    // ここに WAITING 同士の通信？
+    static auto caught = array<bool, 20>();
+
+    cout << "# hub_assignments=";
+    rep(i, 9) cout << (int)hub_assignments[i] << ",";
+    cout << endl;
+
+    cout << "# human_states[i].type=";
+    rep(i, common::M) cout << (int)human_states[i].type << ",";
+    cout << endl;
+
+    // WAITING の人をペットに割り当てる
+    while (true) {
+        auto best_pet = -1;
+        auto best_pet_distance = 999;
+        auto best_pet_hubs = array<i8, 2>{-1, -1};
+        rep(i, common::N) {
+            if (caught[i])
+                continue;
+            const auto& pet_pos = common::pet_positions[i];
+            const auto& cell = cell_ids[pet_pos];
+            if (cell == 99) // まだ壁をつくってない
+                continue;
+            //     cout << "#pet_pos=" << (int)pet_pos.y << "," << (int)pet_pos.x << endl;
+            // assert(cell != 99);
+            if (cell < 0)
+                continue;
+            else if (cell < 24) {
+                const auto& hub = cell_id_to_hub_ids[cell][0];
+                const auto& assigned_human = hub_assignments[hub];
+                if (assigned_human == -1 || human_states[assigned_human].type != HumanState::Type::WAITING ||
+                    human_states[assigned_human].assigned_pet != -1)
+                    goto ng;
+                const auto& put_place = hub_and_pet_pos_to_put_place(hub, pet_pos);
+                const auto dist = abs(features::distances_from_each_human[assigned_human][put_place] - 1);
+                if (chmin(best_pet_distance, dist)) {
+                    best_pet = i;
+                    best_pet_hubs = {hub, -1};
+                }
+            } else {
+                const auto& hubs = cell_id_to_hub_ids[cell];
+                auto dist = 0;
+                rep(idx_hubs, 2) {
+                    const auto& hub = hubs[idx_hubs];
+                    const auto& assigned_human = hub_assignments[hub];
+                    if (assigned_human == -1 || human_states[assigned_human].type != HumanState::Type::WAITING ||
+                        human_states[assigned_human].assigned_pet != -1)
+                        goto ng;
+                    const auto& put_place = hub_and_pet_pos_to_put_place(hub, pet_pos);
+                    chmax(dist, abs(features::distances_from_each_human[assigned_human][put_place] - 1));
+                }
+                if (chmin(best_pet_distance, dist)) {
+                    best_pet = i;
+                    best_pet_hubs = hubs;
+                }
+            }
+        ng:;
+        }
+        if (best_pet == -1)
+            break;
+        if (best_pet_hubs[0] == 0 && best_pet_hubs[1] == 6) {
+            cout << "# WTF " << endl;
+        }
+        rep(idx_hubs, 2) {
+            const auto& hub = best_pet_hubs[idx_hubs];
+            if (hub == -1)
+                continue;
+            const auto& assigned_human = hub_assignments[hub];
+            const auto& pet_pos = common::pet_positions[best_pet];
+            const auto& put_place = hub_and_pet_pos_to_put_place(hub, pet_pos);
+            cout << "#hub,petpos,put_place=" << (int)hub << "|" << (int)pet_pos.y << "," << (int)pet_pos.x << "|" << (int)put_place.y << ","
+                 << (int)put_place.x << endl;
+            human_states[assigned_human].assigned_pet = best_pet;
+            human_states[assigned_human].setting_target_position = put_place;
+        }
+        // TODO: 条件 (到着済み、壁が建設済み、設置可能、中に人が居ない) を確認して、状態を CATCHING に変更、caught の更新
+    }
 
     rep(idx_human, 9) {
         if (human_states[idx_human].type == HumanState::Type::MOVING_FOR_SETTING) {
@@ -743,6 +828,46 @@ void MakeAction() {
             if (distance_board[next_human_positions[idx_human]] == 2) {
                 human_states[idx_human].type = HumanState::Type::WAITING;
             }
+            cout << "#moving_target_position" << (int)target_position.y << "," << (int)target_position.x << endl;
+        } else if (human_states[idx_human].type == HumanState::Type::WAITING) {
+            // ================================================ 4. 近接 ================================================
+            // 既に良い位置にいるなら何もしない
+
+            const auto& v = common::human_positions[idx_human];
+            const auto& hub = human_states[idx_human].assigned_hub;
+            const auto& target_pos = human_states[idx_human].setting_target_position;
+            if (target_pos.y == -1)
+                continue; // 割り当てられなかった
+            const auto& dist = features::distances_from_each_human[idx_human][target_pos];
+            const auto& assigned_pet = human_states[idx_human].assigned_pet;
+            auto distance_from_put_place = Board<short, 32, 32>();
+            bfs(common::fence_board, target_pos, distance_from_put_place);
+            cout << "#target_pos" << (int)target_pos.y << "," << (int)target_pos.x << endl;
+            cout << "#dist=" << dist << endl;
+            if (dist >= 2) {
+                // 置く場所に遠ければ近づく
+                cout << "#近づく " << idx_human << endl;
+                rep(i, 4) {
+                    const auto u = v + DIRECTION_VECS[i];
+                    if (distance_from_put_place[u] < dist) {
+                        human_moves[idx_human] = "UDLR"[i];
+                        next_human_positions[idx_human] = u;
+                    }
+                }
+            } else if (features::distances_from_each_pet[assigned_pet][v] <= features::distances_from_each_pet[assigned_pet][target_pos]) {
+                // ペットに近い側に居れば離れる
+                cout << "#離れる " << idx_human << endl;
+                rep(i, 4) {
+                    const auto u = v + DIRECTION_VECS[i];
+                    if (features::distances_from_each_pet[assigned_pet][u] > features::distances_from_each_pet[assigned_pet][v]) {
+                        human_moves[idx_human] = "UDLR"[i];
+                        next_human_positions[idx_human] = u;
+                    }
+                }
+            } // ちょうどいい位置に居れば何もしない
+        } else if (human_states[idx_human].type == HumanState::Type::CATCHING) {
+            // ================================================ 5. 捕獲 ================================================
+            // TODO
         }
     }
 }
@@ -765,8 +890,8 @@ void Solve() {
         MakeAction();
         UpdateHuman();
         Interact();
-        PreComputeFeatures();
         UpdatePets();
+        PreComputeFeatures();
         common::current_turn++;
     }
 }
