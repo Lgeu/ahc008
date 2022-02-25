@@ -349,6 +349,9 @@ void UpdateHuman() {
         if (d != Directions::NONE) {
             human_count_board[v]--;
             v += DIRECTION_VECS[(int)d];
+            if (fence_board[v]) {
+                cout << "#WTF" << endl;
+            }
             assert(!fence_board[v]);
             human_positions[i] = v;
             human_count_board[v]++;
@@ -379,7 +382,6 @@ void UpdatePets() {
         rep(idx_mv, (int)pet_move.size()) {
             const auto& mv = pet_move[idx_mv];
             {
-
                 Directions d;
                 switch (mv) {
                 case 'U':
@@ -457,6 +459,12 @@ inline bool Puttable(const Vec2<i8>& v) {
         if (common::pet_count_board[v + d])
             return false;
     }
+    auto human_cnt = 0;
+    for (const auto& d : DIRECTION_VECS) {
+        human_cnt += common::human_count_board[v + d];
+    }
+    if (human_cnt >= 2)
+        return false; // 安全策…
     return true;
 }
 
@@ -949,7 +957,8 @@ void MakeAction() {
                 // ペットに近い側に居れば離れる
                 rep(i, 4) {
                     const auto u = v + DIRECTION_VECS[i];
-                    if (features::distances_from_each_pet[assigned_pet][u] > features::distances_from_each_pet[assigned_pet][v]) {
+                    if (features::distances_from_each_pet[assigned_pet][u] != 999 &&
+                        features::distances_from_each_pet[assigned_pet][u] > features::distances_from_each_pet[assigned_pet][v]) {
                         human_moves[idx_human] = "UDLR"[i];
                         next_human_positions[idx_human] = u;
                     }
