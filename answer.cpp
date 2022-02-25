@@ -450,6 +450,22 @@ void PreComputeFeatures() {
     }
 }
 
+inline bool TightPuttable(const Vec2<i8>& v) {
+    if (common::human_count_board[v])
+        return false;
+    if (common::pet_count_board[v])
+        return false;
+    for (const auto& d : DIRECTION_VECS) {
+        if (common::pet_count_board[v + d])
+            return false;
+    }
+    rep(i, common::M) {
+        if (common::next_human_positions[i] == v)
+            return false;
+    }
+    return true;
+}
+
 inline bool Puttable(const Vec2<i8>& v) {
     if (common::human_count_board[v])
         return false;
@@ -873,7 +889,14 @@ void MakeAction() {
     rep(i, common::M) { cout << (int)human_states[i].type << ","; }
     cout << endl;
 
-    rep(idx_human, common::M) {
+    auto human_order = array<i8, 10>();
+    iota(human_order.begin(), human_order.end(), 0);
+    sort(human_order.begin(), human_order.begin() + common::M, [&](const i8& l, const i8& r) {
+        return (human_states[l].type == HumanState::Type::SETTING) < (human_states[r].type == HumanState::Type::SETTING);
+    }); // SETTING を最後にする
+
+    rep(ord, common::M) {
+        const auto& idx_human = human_order[ord];
         if (human_states[idx_human].type == HumanState::Type::MOVING_FOR_SETTING) {
             // ================================================ 1. 移動 ================================================
             static auto distance_board = Board<short, 32, 32>();
@@ -906,7 +929,7 @@ void MakeAction() {
                 const auto u = v + DIRECTION_VECS[i];
                 if (pattern[u] && !common::fence_board[u]) {
                     n_remaining_put_place++;
-                    if (Puttable(u)) {
+                    if (TightPuttable(u)) {
                         human_moves[idx_human] = "udlr"[i];
                     }
                 }

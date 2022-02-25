@@ -5,9 +5,17 @@ from threading import Thread
 from subprocess import Popen, PIPE
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
+N = 100
+
+scores = [0] * N
+
 def read_stream(name, in_file, out_file):
     for line in in_file:
         print(f"[{name}] {line.strip()}", file=out_file)
+        try:
+            scores[name] = int(line.strip().split()[-1])
+        except:
+            pass
 
 def run(cmd, name):
     proc = Popen(cmd, stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True)
@@ -22,8 +30,10 @@ out_dir = Path("out") / datetime.now().isoformat()
 out_dir.mkdir()
 with ThreadPoolExecutor(7) as executor:
     futures = []
-    for i in range(100):
+    for i in range(N):
         out_file = out_dir / f"{i:04d}.txt"
         cmd = f"./tools/target/release/tester ./a.out < ./tools/in/{i:04d}.txt > {out_file}"
         futures.append(executor.submit(run, cmd, i))
     as_completed(futures)
+
+print(f"Mean Score = {sum(scores) / len(scores)}")
