@@ -14,6 +14,8 @@
 #include <type_traits>
 #include <vector>
 
+#include <atcoder/dsu>
+
 #ifdef _MSC_VER
 #include <intrin.h>
 #else
@@ -856,12 +858,23 @@ void MakeAction() {
     ng:;
     }
 
+    // ペットに優先順位を付ける
     sort(pet_candidates.begin(), pet_candidates.begin() + n_pet_candidates);
 
-    // aaa
+    static auto cell_blocked = array<bool, 48>();
+    auto check_connected = [&]() {
+        auto uf = atcoder::dsu(9);
+        rep3(i, 24, 48) {
+            if (cell_blocked[i])
+                continue;
+            const auto& edge = cell_id_to_hub_ids[i];
+            uf.merge(edge[0], edge[1]);
+        }
+        return uf.size(0) == 9;
+    };
 
+    // 優先度が高いペットから人を割り当て
     auto candidate_used = array<bool, 20>();
-
     rep(idx_cand, n_pet_candidates) {
         const auto& cand = pet_candidates[idx_cand];
         // if (cand.incomplete)
@@ -903,6 +916,15 @@ void MakeAction() {
             rep(idx_human, common::M) {
                 if (cell_ids[common::human_positions[idx_human]] == cand.cell)
                     catching_condition = false;
+            }
+            // 分断されないか？
+            if (catching_condition && cand.cell >= 0) {
+                assert(check_connected());
+                cell_blocked[cand.cell] = true;
+                if (!check_connected()) {
+                    cell_blocked[cand.cell] = false;
+                    catching_condition = false;
+                }
             }
             // CATCHING にする
             if (catching_condition) {
@@ -997,10 +1019,6 @@ void MakeAction() {
             human_states[assigned_human].assigned_pet = cand.pet;
             human_states[assigned_human].setting_target_position = target_pos;
         }
-    }
-
-    if ((int)human_states[4].assigned_hub == 4 && human_states[4].setting_target_position.x == 8) {
-        cout << "#WTF" << endl;
     }
 
     cout << "#";
