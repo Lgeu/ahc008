@@ -777,99 +777,232 @@ void MakeAction() {
     static auto caught = array<bool, 20>();
 
     // WAITING の人をペットに割り当てる
-    while (true) {
-        auto best_pet = -1;
-        auto best_pet_distance = 999;
-        auto best_pet_hubs = array<i8, 2>{-1, -1};
-        rep(i, common::N) {
-            if (caught[i])
-                continue;
-            const auto& pet_pos = common::pet_positions[i];
-            const auto& cell = cell_ids[pet_pos];
-            if (cell == 99) // まだ壁をつくってない
-                continue;
-            if (cell < 0)
-                continue;
-            else if (cell < 24) {
-                const auto& hub = cell_id_to_hub_ids[cell][0];
-                const auto& assigned_human = hub_assignments[hub];
-                if (assigned_human == -1 || human_states[assigned_human].type != HumanState::Type::WAITING ||
-                    human_states[assigned_human].assigned_pet != -1)
-                    goto ng;
-                const auto& put_place = hub_and_pet_pos_to_put_place(hub, pet_pos);
-                const auto dist = abs(features::distances_from_each_human[assigned_human][put_place] - 1);
-                if (chmin(best_pet_distance, dist)) {
-                    best_pet = i;
-                    best_pet_hubs = {hub, -1};
-                }
-            } else {
-                const auto& hubs = cell_id_to_hub_ids[cell];
-                auto dist = 0;
-                rep(idx_hubs, 2) {
-                    const auto& hub = hubs[idx_hubs];
-                    const auto& assigned_human = hub_assignments[hub];
-                    if (assigned_human == -1 || human_states[assigned_human].type != HumanState::Type::WAITING ||
-                        human_states[assigned_human].assigned_pet != -1)
-                        goto ng;
-                    const auto& put_place = hub_and_pet_pos_to_put_place(hub, pet_pos);
-                    chmax(dist, abs(features::distances_from_each_human[assigned_human][put_place] - 1));
-                }
-                if (chmin(best_pet_distance, dist)) {
-                    best_pet = i;
-                    best_pet_hubs = hubs;
-                }
+    struct PetCandidate {
+        i8 pet;
+        i8 cell;
+        array<i8, 2> hubs;
+        array<i8, 2> assigned_human;
+        array<Vec2<i8>, 2> target_pos; // cell >= 0 なら置く場所、 cell < 0 ならペットの位置
+        short dist;
+        bool incomplete;
+        inline bool operator<(const PetCandidate& rhs) const {
+            if (incomplete != rhs.incomplete) {
+                return incomplete < rhs.incomplete;
             }
-        ng:;
+            if ((cell < 0) != (rhs.cell < 0)) {
+                return (cell < 0) < (rhs.cell < 0);
+            }
+            if (dist <= 1 || rhs.dist <= 1 && dist != rhs.dist) {
+                return dist < rhs.dist;
+            }
+            if ((cell >= 24) != (rhs.cell >= 24)) {
+                return (cell >= 24) < (rhs.cell >= 24);
+            }
+            return dist < rhs.dist;
         }
-        if (best_pet == -1)
-            break;
+    };
+    auto n_pet_candidates = 0;
+    auto pet_candidates = array<PetCandidate, 20>();
+
+    rep(i, common::N) {
+        if (caught[i]) {
+            continue;
+        }
+        auto cand = PetCandidate{};
+        cand.pet = i;
+        const auto& pet_pos = common::pet_positions[i];
+        cand.cell = cell_ids[pet_pos];
+        if (cand.cell == 99) // まだ壁をつくってない
+            continue;
+        if (cand.cell < 0) {
+            const auto& hub = (i8)~cand.cell;
+            cand.hubs = {hub, -1};
+            const auto& assigned_human = hub_assignments[hub];
+            if (assigned_human == -1 || human_states[assigned_human].type != HumanState::Type::WAITING)
+                goto ng;
+            cand.assigned_human = {assigned_human, -1};
+            cand.target_pos = {pet_pos, {-1, -1}};
+            cand.dist = max(features::distances_from_each_human[assigned_human][pet_pos] - 1, 0); // これでいいのか？
+        } else if (cand.cell < 24) {
+            const auto& hub = cell_id_to_hub_ids[cand.cell][0];
+            cand.hubs = {hub, -1};
+            const auto& assigned_human = hub_assignments[hub];
+            if (assigned_human == -1 || human_states[assigned_human].type != HumanState::Type::WAITING)
+                goto ng;
+            cand.assigned_human = {assigned_human, -1};
+            const auto& put_place = hub_and_pet_pos_to_put_place(hub, pet_pos);
+            cand.target_pos = {put_place, {-1, -1}};
+            cand.dist = abs(features::distances_from_each_human[assigned_human][put_place] - 1);
+        } else {
+            cand.hubs = cell_id_to_hub_ids[cand.cell];
+            cand.dist = 0;
+            auto ng_cnt = 0;
+            rep(idx_hubs, 2) {
+                const auto& hub = cand.hubs[idx_hubs];
+                const auto& assigned_human = hub_assignments[hub];
+                cand.assigned_human[idx_hubs] = assigned_human;
+                if (assigned_human == -1 || human_states[assigned_human].type != HumanState::Type::WAITING) {
+                    ng_cnt++;
+                    cand.incomplete = true;
+                }
+                const auto& put_place = hub_and_pet_pos_to_put_place(hub, pet_pos);
+                cand.target_pos[idx_hubs] = put_place;
+                chmax(cand.dist, abs(features::distances_from_each_human[assigned_human][put_place] - 1));
+            }
+            if (ng_cnt == 2)
+                goto ng;
+        }
+        pet_candidates[n_pet_candidates++] = cand;
+    ng:;
+    }
+
+    sort(pet_candidates.begin(), pet_candidates.begin() + n_pet_candidates);
+
+    // aaa
+
+    auto candidate_used = array<bool, 20>();
+
+    rep(idx_cand, n_pet_candidates) {
+        const auto& cand = pet_candidates[idx_cand];
+        // if (cand.incomplete)
+        //     continue;
         bool catching_condition = true;
         rep(idx_hubs, 2) {
-            const auto& hub = best_pet_hubs[idx_hubs];
-            if (hub == -1)
+            const auto& assigned_human = cand.assigned_human[idx_hubs];
+            if (assigned_human == -1)
                 continue;
-            const auto& assigned_human = hub_assignments[hub];
-            const auto& pet_pos = common::pet_positions[best_pet];
-            const auto& put_place = hub_and_pet_pos_to_put_place(hub, pet_pos);
-            human_states[assigned_human].assigned_pet = best_pet;
-            human_states[assigned_human].setting_target_position = put_place;
-            if (features::distances_from_each_human[assigned_human][put_place] != 1)
+            if (human_states[assigned_human].assigned_pet != -1 || human_states[assigned_human].type != HumanState::Type::WAITING)
+                goto brcon;
+        }
+        candidate_used[idx_cand] = true;
+        rep(idx_hubs, 2) {
+            const auto& assigned_human = cand.assigned_human[idx_hubs];
+            if (assigned_human == -1)
+                continue;
+            const auto& target_pos = cand.target_pos[idx_hubs];
+            human_states[assigned_human].assigned_pet = cand.pet;
+            human_states[assigned_human].setting_target_position = target_pos;
+            if (cand.cell < 0)
                 catching_condition = false;
-            if (!Puttable(put_place))
+            else if (features::distances_from_each_human[assigned_human][target_pos] != 1)
+                catching_condition = false;
+            else if (!Puttable(target_pos))
                 catching_condition = false;
         }
         // 条件 (到着済み、壁が建設済み、設置可能、中に人が居ない) を確認して、状態を CATCHING に変更、caught の更新
-        // そういえば設置と同時に移動する事故を考えてない　まあそんなに起こらないか…？
         {
-            const auto& cell = cell_ids[common::pet_positions[best_pet]];
+            // 両側に人が居るか？
+            if (cand.incomplete)
+                catching_condition = false;
             // 壁は建設済みか？
-            for (const auto& fence_pos : cell_neighboring_fences[cell]) {
+            for (const auto& fence_pos : cell_neighboring_fences[cand.cell]) {
                 if (!common::fence_board[fence_pos])
                     catching_condition = false;
             }
             // 中に人は居ないか？
             rep(idx_human, common::M) {
-                if (cell_ids[common::human_positions[idx_human]] == cell)
+                if (cell_ids[common::human_positions[idx_human]] == cand.cell)
                     catching_condition = false;
             }
             // CATCHING にする
             if (catching_condition) {
                 rep(idx_hubs, 2) {
-                    const auto& hub = best_pet_hubs[idx_hubs];
-                    if (hub == -1)
+                    const auto& assigned_human = cand.assigned_human[idx_hubs];
+                    if (assigned_human == -1)
                         continue;
-                    const auto& assigned_human = hub_assignments[hub];
                     human_states[assigned_human].type = HumanState::Type::CATCHING;
-                    caught[best_pet] = true;
+                    caught[cand.pet] = true;
                 }
                 // 他のペットも同時に閉じ込められる場合
                 rep(i, common::N) {
-                    if (cell_ids[common::pet_positions[i]] == cell)
+                    if (cell_ids[common::pet_positions[i]] == cand.cell)
                         caught[i] = true;
                 }
             }
         }
+    brcon:;
     }
+
+    // すべて 4 なら、余ってる人を移動させる
+    auto force_move = true;
+    rep(idx_human, common::M) {
+        if (human_states[idx_human].type != HumanState::Type::WAITING) {
+            force_move = false;
+        }
+    }
+    if (force_move) {
+        auto neighboring_pet_counts = array<i8, 9>();
+        rep(i, common::N) {
+            // ペットが集まってる場所を調べる
+            if (caught[i])
+                continue;
+            const auto& cell = cell_ids[common::pet_positions[i]];
+            const auto& hubs = cell_id_to_hub_ids[cell];
+            if (cell < 0) {
+                neighboring_pet_counts[~cell]++;
+            } else {
+                neighboring_pet_counts[hubs[0]]++;
+                if (cell >= 24) {
+                    neighboring_pet_counts[hubs[1]]++;
+                }
+            }
+        }
+        auto best_human = -1;
+        auto best_destination = -1;
+        auto best = 0.25;
+        rep(idx_human, common::M) {
+            if (human_states[idx_human].assigned_pet != -1)
+                continue;
+            const auto& hub = human_states[idx_human].assigned_hub;
+            if (hub == -1)
+                continue; // そんなことある？
+            const auto& current_n_pets = neighboring_pet_counts[hub];
+            rep(new_hub, 9) {
+                if (hub == new_hub)
+                    continue;
+                if (hub_assignments[new_hub] != -1)
+                    continue;
+                const auto& new_n_pets = neighboring_pet_counts[new_hub];
+                const auto& dist = features::distances_from_each_human[idx_human][hub_centers[new_hub]];
+                if (dist == 999)
+                    continue;
+                if (chmax(best, (double)(new_n_pets - current_n_pets) / (double)(dist + 1.0))) {
+                    best_human = idx_human;
+                    best_destination = new_hub;
+                }
+            }
+        }
+        if (best_human != -1) {
+            hub_assignments[human_states[best_human].assigned_hub] = -1;
+            hub_assignments[best_destination] = best_human;
+            human_states[best_human].type = HumanState::Type::MOVING;
+            human_states[best_human].moving_target_position = hub_centers[best_destination];
+            human_states[best_human].assigned_hub = best_destination;
+        }
+    }
+
+    // 片側だけでも集まる
+    rep(idx_cand, n_pet_candidates) {
+        if (candidate_used[idx_cand])
+            continue;
+        const auto& cand = pet_candidates[idx_cand];
+        bool catching_condition = true;
+        rep(idx_hubs, 2) {
+            auto assigned_human = cand.assigned_human[idx_hubs];
+            if (assigned_human == -1)
+                continue;
+            if (human_states[assigned_human].assigned_pet != -1 || human_states[assigned_human].type != HumanState::Type::WAITING)
+                continue;
+            const auto& target_pos = cand.target_pos[idx_hubs];
+            human_states[assigned_human].assigned_pet = cand.pet;
+            human_states[assigned_human].setting_target_position = target_pos;
+        }
+    }
+
+    if ((int)human_states[4].assigned_hub == 4 && human_states[4].setting_target_position.x == 8) {
+        cout << "#WTF" << endl;
+    }
+
     cout << "#";
     rep(i, common::N) { cout << caught[i]; }
     cout << endl;
@@ -983,11 +1116,12 @@ void MakeAction() {
                     }
                 }
             } else if (features::distances_from_each_pet[assigned_pet][v] <= features::distances_from_each_pet[assigned_pet][target_pos]) {
-                // ペットに近い側に居れば離れる
+                // ペットに近い側に居れば、中央に寄る
+                auto distance_from_center = Board<short, 32, 32>();
+                bfs(common::fence_board, hub_centers[human_states[idx_human].assigned_hub], distance_from_center);
                 rep(i, 4) {
                     const auto u = v + DIRECTION_VECS[i];
-                    if (features::distances_from_each_pet[assigned_pet][u] != 999 &&
-                        features::distances_from_each_pet[assigned_pet][u] > features::distances_from_each_pet[assigned_pet][v]) {
+                    if (distance_from_center[u] < distance_from_center[v]) {
                         human_moves[idx_human] = "UDLR"[i];
                         next_human_positions[idx_human] = u;
                     }
