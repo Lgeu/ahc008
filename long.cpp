@@ -5,7 +5,6 @@
 int main() {
     SHORT_BAR = false;
     Initialize();
-    SetBarLength();
     PreComputeFeatures();
     rep(_, 300) {
         MakeAction();
